@@ -1,6 +1,8 @@
 //Version 0.2
 //Movement not yet supported
 
+alert("included");
+
 /*function setup(){
     var attr={
         alpha:false,
@@ -170,7 +172,7 @@ PixelShaderUniform.prototype = {
         this.values = Array.call(null, arguments);
     },
     
-}
+};
 
 function PixelShader(canvas){
     this.canvas = canvas;
@@ -276,7 +278,7 @@ PixelShader.prototype = {
         
         this.gl.drawArrays(this.gl.TRIANGLES,0,6);
     }
-}
+};
 
 
 
