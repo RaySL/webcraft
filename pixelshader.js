@@ -1,7 +1,6 @@
 //Version 0.2
 //Movement not yet supported
 
-alert("included");
 
 /*function setup(){
     var attr={
