@@ -10,21 +10,16 @@
 **/
 
 
-function PixelShaderUniform(name, type, calculate){
+function PixelShaderUniform(name, type, source){
     this.name = name;
     this.type = type;
     
     this.values = [];
-    this.calculate = calculate || function(){};
+    this.source = source;
 }
 PixelShaderUniform.prototype = {
     update: function(values){
-        this.values = values;
-    },
-    addEventListener: function(listener, callback){
-        window.addEventListener(listener, function(event){
-            this.update(callback(event));
-        });
+        this.values = this.source();
     }
 };
 
@@ -122,11 +117,11 @@ PixelShader.prototype = {
         
         var pos, uni;
         for (var i = 0, l = this.uniforms.length; i < l; i++){
-            uni = this.uniform[i];
+            uni = this.uniforms[i];
             pos = this.gl.getUniformLocation(this.program, uni.name);
             
             if (this.gl[uni.type])
-                this.gl[uni.type].apply(null, uni.values)
+                this.gl[uni.type].apply(null, [pos].concat(uni.values));
         }
         
         
@@ -134,6 +129,11 @@ PixelShader.prototype = {
     },
     addUniform: function(uniform){
         this.uniforms.push(uniform);
+    },
+    updateUniforms: function(){
+        for (var i = 0; i < this.uniforms.length; i++){
+            this.uniforms[i].update();
+        }
     }
 };
 

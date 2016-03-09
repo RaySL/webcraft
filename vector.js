@@ -1,5 +1,4 @@
-
-function vec3(x, y = x || x.y, z = x || x.z){
+function vec3(x, y, z){
     this.x = x;
     this.y = y;
     this.z = z;
@@ -33,6 +32,28 @@ vec3.prototype = {
         this.x /= that.x;
         this.y /= that.y;
         this.z /= that.z;
+    },
+    
+    
+    scalar_add: function(scalar){
+        this.x += scalar;
+        this.y += scalar;
+        this.z += scalar;
+    },
+    scalar_mul: function(scalar){
+        this.x *= scalar;
+        this.y *= scalar;
+        this.z *= scalar;
+    },
+    scalar_sub: function(scalar){
+        this.x -= scalar;
+        this.y -= scalar;
+        this.z -= scalar;
+    },
+    scalar_div: function(scalar){
+        this.x /= scalar;
+        this.y /= scalar;
+        this.z /= scalar;
     }
 };
 
