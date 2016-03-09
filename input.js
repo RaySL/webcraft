@@ -27,10 +27,10 @@ var Input = {
     }
 };
 
-canvas.addEventListener("keydown", function(event){
+window.addEventListener("keydown", function(event){
     Input._keys[event.keyCode] = 1;
 });
-canvas.addEventListener("keyup", function(event){
+window.addEventListener("keyup", function(event){
     Input._keys[event.keyCode] = 0;
 });
 canvas.addEventListener("mousemove", function(event){

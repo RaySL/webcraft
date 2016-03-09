@@ -3,14 +3,15 @@
 
 
 function Player(){
-    this.direction = new vec3(0.0);
+    this.direction = new vec3(0.0, 0.0, 1.0);
     
     this.position = new vec3(0.0, 0.0, 1.0);
-    this.velocity = new vec3(0.0);
+    this.velocity = new vec3(0.0, 0.0, 0.0);
     
-    this.speed = 0.2;
+    this.speed = 0.01;
+    this.turn = 0.1;
     
-    this.gravity = vec3(0.0, 0.0, -0.1);
+    this.gravity = new vec3(0.0, 0.0, -0.01);
 }
 Player.prototype = {
     getDirectionUniform: function(){
@@ -21,8 +22,9 @@ Player.prototype = {
     },
     
     update: function(){
+        this.velocity.scalar_mul(0.9);
         this.position.add(this.velocity);
-        this.velocity.add(this.gravity);
+        //this.velocity.add(this.gravity);
     },
     collide: function(){
         //uh oh! :O
@@ -31,10 +33,22 @@ Player.prototype = {
         this.velocity.add(vec);
     },
     control: function(){
-        if (Input.up){
-            var vec = this.direction;
-            vec.scalar_mul(this.speed);
-            this.move(vec);
+        //var vec;
+        if (Input.up()){
+            this.move(new vec3(this.direction.x * this.speed,
+                               this.direction.y * this.speed,
+                               this.direction.z * this.speed));
+        } else if (Input.down()){
+            this.move(new vec3(-this.direction.x * this.speed,
+                               -this.direction.y * this.speed,
+                               -this.direction.z * this.speed));
+        }
+        
+        if (Input.left()){
+            this.direction.rotateY(this.turn);
+        }
+        if (Input.right()){
+            this.direction.rotateY(-this.turn);
         }
     }
 };

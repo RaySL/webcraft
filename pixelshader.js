@@ -10,16 +10,17 @@
 **/
 
 
-function PixelShaderUniform(name, type, source){
+function PixelShaderUniform(name, type, source, srcObj){
     this.name = name;
     this.type = type;
     
     this.values = [];
     this.source = source;
+    this.srcObj = srcObj;
 }
 PixelShaderUniform.prototype = {
-    update: function(values){
-        this.values = this.source();
+    update: function(){
+        this.values = this.source.call(this.srcObj);
     }
 };
 
@@ -103,9 +104,6 @@ PixelShader.prototype = {
         if(!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)){
             console.log(this.gl.getProgramInfoLog(this.program));return;
         }
-        
-        //start execution
-        window.requestAnimationFrame(this.display());
     },
     display: function(){
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
@@ -120,8 +118,9 @@ PixelShader.prototype = {
             uni = this.uniforms[i];
             pos = this.gl.getUniformLocation(this.program, uni.name);
             
-            if (this.gl[uni.type])
-                this.gl[uni.type].apply(null, [pos].concat(uni.values));
+            if (this.gl[uni.type]){
+                this.gl[uni.type].apply(this.gl, [pos].concat(uni.values));
+            }
         }
         
         

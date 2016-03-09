@@ -54,22 +54,37 @@ vec3.prototype = {
         this.x /= scalar;
         this.y /= scalar;
         this.z /= scalar;
+    },
+    
+    rotateX: function(ang){
+        var temp = this.x;
+        this.z = this.z * Math.cos(ang) - this.y * Math.sin(ang);
+        this.y = temp   * Math.sin(ang) + this.y * Math.cos(ang);
+    },
+    rotateY: function(ang){
+        var temp = this.x;
+        this.x = this.x * Math.cos(ang) - this.z * Math.sin(ang);
+        this.z = temp   * Math.sin(ang) + this.z * Math.cos(ang);
+    },
+    rotateZ: function(ang){
+        var temp = this.y;
+        this.y = this.y * Math.cos(ang) - this.x * Math.sin(ang);
+        this.x = temp   * Math.sin(ang) + this.x * Math.cos(ang);
     }
 };
 
 vec3.dot = function(v1, v2){
-    return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+    return v1.x*v1.x + v1.y*v2.y + v1.z*v2.z;
 };
 vec3.cross = function(v1, v2){
     //
 };
 
-
 vec3.right                  = new vec3(1.0, 0.0, 0.0);
 vec3.left                   = new vec3(-1.0, 0.0, 0.0);
 vec3.up     = vec3.top      = new vec3(0.0, 1.0, 0.0);
 vec3.down   = vec3.bottom   = new vec3(0.0, -1.0, 0.0);
-vec3.front  = vec3.forward  = new vec3(0.0, 0.0, 1.0);
+vec3.front  = vec3.forward  = new vec3(0.0, 1.0);
 vec3.back   = vec3.backward = new vec3(0.0, 0.0, -1.0);
 
 

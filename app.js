@@ -11,25 +11,29 @@ var canvas = document.getElementsByTagName("canvas")[0];
 
 var shader = new PixelShader(canvas);
 
-//load code here
+shader.code = document.getElementById("fragment").text;
 
-//shader.setup();
+shader.setup();
 
 
 var player = new Player();
-var direction = new PixelShaderUniform("direction", "glUniform3f", player.getDirectionUniform);
-var position = new PixelShaderUniform("direction", "glUniform3f", player.getPositionUniform);
+var direction = new PixelShaderUniform("direct", "uniform3f", player.getDirectionUniform, player);
+var position = new PixelShaderUniform("player", "uniform3f", player.getPositionUniform, player);
 
 shader.addUniform(direction);
 shader.addUniform(position);
 
-var mouse = new PixelShaderUniform("mouse", "glUniform2f", Input.mouse);
-shader.addUniform(mouse);
+//var mouse = new PixelShaderUniform("mouse", "uniform2f", Input.mouse);
+//shader.addUniform(mouse);
 
 
 
 var rate = 1000 / 50; //50fps
 function frame(){
+    player.update();
+    player.control();
+    
+    shader.updateUniforms();
     shader.display();
     
     window.requestAnimationFrame(function(){
@@ -37,7 +41,7 @@ function frame(){
     });
 }
 
-frame();
+window.requestAnimationFrame(frame);
 
 
 
