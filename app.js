@@ -6,15 +6,14 @@
 /*global Player*/
 
 
-var canvas = document.createElement("canvas");
-canvas.setAttribute("width", 400);
-canvas.setAttribute("height", 400);
-document.appendChild(canvas);
+var canvas = document.getElementsByTagName("canvas")[0];
 
 
 var shader = new PixelShader(canvas);
-shader.setup();
 
+//load code here
+
+//shader.setup();
 
 
 var player = new Player();

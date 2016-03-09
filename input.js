@@ -1,11 +1,8 @@
-/* global canvas */
+var canvas = document.getElementsByTagName("canvas")[0];
 
 var Input = {
     _keys: new Array(127).fill(0),
-    _mouse: {
-        x: 0,
-        y: 0
-    },
+    _mouse: [0, 0],
     
     keys: function(){
         return this._keys;
@@ -30,17 +27,17 @@ var Input = {
     }
 };
 
-window.addEventListener("keydown", function(event){
+canvas.addEventListener("keydown", function(event){
     Input._keys[event.keyCode] = 1;
 });
-window.addEventListener("keyup", function(event){
+canvas.addEventListener("keyup", function(event){
     Input._keys[event.keyCode] = 0;
 });
-window.addEventListener("mousemove", function(event){
-    Input._mouse = {
-        x: event.pageX - canvas.offsetLeft,
-        y: event.pageY - canvas.offsetTop
-    };
+canvas.addEventListener("mousemove", function(event){
+    Input._mouse = [
+        event.pageX - this.offsetLeft,
+        event.pageY - this.offsetTop
+    ];
 });
 
 
