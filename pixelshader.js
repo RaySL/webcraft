@@ -1,162 +1,13 @@
-//Version 0.2
-//Movement not yet supported
+//Version 0.3
 
-
-/*function setup(){
-    var attr={
-        alpha:false,
-        depth:false,
-        stencil:false,
-        antialias:false,
-        premultipliedAlpha:false,
-        preserveDrawingBuffer:true,
-        failIfMajorPerformanceCaveat:true
-    };
-    //create a webgl context
-    gl=cnv.getContext('webgl',attr)||cnv.getContext('experimental-webgl',attr);
-    
-    if(!gl){
-        //Something went wrong with the browser
-        alert('WebGL not supported, try a different browser?');return;
-    }
-    
-    this.gl.viewport(0,0,gl.drawingBufferWidth,gl.drawingBufferHeight);
-    var buffer=gl.createBuffer();
-    this.gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
-    this.gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
-    var fragment=gl.createShader(gl.FRAGMENT_SHADER);
-    var vertex=gl.createShader(gl.VERTEX_SHADER);
-    this.gl.shaderSource(fragment,document.getElementById('fragment').text);
-    this.gl.shaderSource(vertex,'attribute vec2 a_position;void main(){gl_Position=vec4(a_position,0,1);}');
-    this.gl.compileShader(vertex);
-    if(!gl.getShaderParameter(vertex,gl.COMPILE_STATUS)){
-        //vertex compile fail
-        console.log(gl.getShaderInfoLog(vertex));return;
-    }
-    
-    this.gl.compileShader(fragment);
-    if(!gl.getShaderParameter(fragment,gl.COMPILE_STATUS)){
-        //fragment compile fail
-        var err=gl.getShaderInfoLog(fragment);
-        console.log(err);
-        alert({message:err,toString:function(){return err;}});
-        return;
-    }
-    
-    program = this.gl.createProgram();
-    this.gl.attachShader(program,vertex);
-    this.gl.attachShader(program,fragment);
-    this.gl.linkProgram(program);
-    this.gl.useProgram(program);
-    if(!gl.getProgramParameter(program,gl.LINK_STATUS)){
-        console.log(gl.getProgramInfoLog(program));return;
-    }
-    
-    //start execution
-    window.requestAnimationFrame(draw);
-}
-
-function update(){
-    var theta = deltaTime * turn;
-    
-    px += vx;
-    py += vy;
-    pz += vz;
-    
-    vx *= 0.9; vy *= 0.9; vz *= 0.9;
-    
-    if (keys[38] || keys[87]){
-        vz += rz * move;
-        vx += rx * move;
-    }
-    if (keys[40] || keys[83]){
-        vz -= rz * move;
-        vx -= rx * move;
-    }
-    
-    if (keys[37] || keys[65]){
-        //cos -sin
-        //sin cos
-        var t = rx;
-        rx = rx * Math.cos(-theta) - rz * Math.sin(-theta);
-        rz = t  * Math.sin(-theta) + rz * Math.cos(-theta);
-        ry -= theta;
-    }
-    
-    if (keys[39] || keys[68]){
-        var t = rx;
-        rx = rx * Math.cos(theta) - rz * Math.sin(theta);
-        rz = t  * Math.sin(theta) + rz * Math.cos(theta);
-        ry += theta;
-    }
-    
-    if (keys[32]){
-        vy -= 0.01;
-    }
-    
-}
-
-function draw(){
-    var nTime = (Date.now()/1000)%65535;
-    deltaTime = nTime - time;
-    time = nTime;
-    update();
-    
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    var positionLocation=gl.getAttribLocation(program,'a_position');
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation,2,gl.FLOAT,false,0,0);
-    
-    var uniformLocation = gl.getUniformLocation(program,'time');
-    gl.uniform1f(uniformLocation,time);
-    
-    var uniformLocation = gl.getUniformLocation(program,'scale');
-    gl.uniform2f(uniformLocation,2/gl.drawingBufferWidth,2/gl.drawingBufferHeight);
-    
-    var uniformLocation = gl.getUniformLocation(program,'mouse');
-    gl.uniform2f(uniformLocation,400-mouse.x,mouse.y);
-    
-    var uniformLocation = gl.getUniformLocation(program,'player');
-    gl.uniform3f(uniformLocation, px, py, pz);
-    
-    var uniformLocation = gl.getUniformLocation(program,'direct');
-    gl.uniform3f(uniformLocation, rx, ry, rz);
-    
-    
-    gl.drawArrays(gl.TRIANGLES,0,6);
-    loop = window.setTimeout(function(){
-        window.requestAnimationFrame(draw);
-        window.clearTimeout(loop);
-    }, rate);
-}
-
-cnv.addEventListener('mousemove',function(event){
-    mouse.x=event.pageX-cnv.offsetLeft;
-    mouse.y=event.pageY-cnv.offsetTop;
-});
-
-window.addEventListener('keydown',
-    function(event){
-        keys[event.keyCode] = 1;
-        event.preventDefault();
-    }
-);
-
-window.addEventListener('keyup',
-    function(event){
-        keys[event.keyCode] = 0;
-    }
-);
-
-var isSetup=false;
-window.addEventListener('mouseover',
-    function(){
-        if(!isSetup){
-            setup();
-            isSetup=true;
-        }
-    }
-);*/
+/**
+ * pixelshader.js
+ * 
+ * A small library to create and run 
+ * interactive pixel shaders with 
+ * GLSL code.
+ * 
+**/
 
 
 function PixelShaderUniform(name, type, calculate){
@@ -167,10 +18,14 @@ function PixelShaderUniform(name, type, calculate){
     this.calculate = calculate || function(){};
 }
 PixelShaderUniform.prototype = {
-    update: function(){
-        this.values = Array.call(null, arguments);
+    update: function(values){
+        this.values = values;
     },
-    
+    addEventListener: function(listener, callback){
+        window.addEventListener(listener, function(event){
+            this.update(callback(event));
+        });
+    }
 };
 
 function PixelShader(canvas){
@@ -276,11 +131,11 @@ PixelShader.prototype = {
         
         
         this.gl.drawArrays(this.gl.TRIANGLES,0,6);
+    },
+    addUniform: function(uniform){
+        this.uniforms.push(uniform);
     }
 };
-
-
-
 
 
 
