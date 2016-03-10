@@ -8,7 +8,7 @@
     </body>
     
     
-    <script id="fragment" type="shader/fragment" src="shader.glsl">
+    <script id="fragment" type="shader/fragment">
         #ifdef GL_FRAGMENT_PRECISION_HIGH
             precision highp float; 
         #else
@@ -38,16 +38,6 @@
         
         #define slowrand(n) fract(sin(mod(dot(n, vec3(1.42887,8.6025,13.1525)), 3.14159))*627.7327)
         #define fastrand(n) fract(dot(n, vec3(131.43,14.11,86.56)))
-        
-        void rotate(inout vec2 v, in float angle){
-            float t = v.x;
-            float c = cos(angle);
-            float s = sin(angle);
-            
-            v.x = v.x * c - v.y * c;
-            v.y = t   * c + v.y * c;
-        }
-        
         
         float terrain(in vec3 p){
             p.x *= 0.5;
@@ -129,15 +119,9 @@
             vec3 ro = player;
             vec3 rd = normalize(vec3(uv, FOCAL_LENGTH));
             
-            //float t = rd.x;
-            //rd.x = rd.x * direct.z - rd.z * direct.x;
-            //rd.z = t    * direct.x + rd.z * direct.z;
-            
             float t = rd.z;
             rd.z = rd.z * direct.z - rd.x * direct.x;
             rd.x = t    * direct.x + rd.x * direct.z;
-            
-            
             
             gl_FragColor = vec4(march(ro, rd), 1.0);
         }
