@@ -128,9 +128,13 @@
             vec3 ro = player;
             vec3 rd = normalize(vec3(uv, FOCAL_LENGTH));
             
-            float t = rd.x;
-            rd.x = rd.x * direct.z - rd.z * direct.x;
-            rd.z = t    * direct.x + rd.z * direct.z;
+            //float t = rd.x;
+            //rd.x = rd.x * direct.z - rd.z * direct.x;
+            //rd.z = t    * direct.x + rd.z * direct.z;
+            
+            float t = rd.z;
+            rd.z = rd.z * direct.z - rd.x * direct.x;
+            rd.x = t    * direct.x + rd.x * direct.z;
             
             
             

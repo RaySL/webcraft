@@ -45,10 +45,10 @@ Player.prototype = {
         }
         
         if (Input.left()){
-            this.direction.rotateY(this.turn);
+            this.direction.rotateY(-this.turn);
         }
         if (Input.right()){
-            this.direction.rotateY(-this.turn);
+            this.direction.rotateY(this.turn);
         }
     }
 };
