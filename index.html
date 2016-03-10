@@ -37,7 +37,7 @@
         
         
         #define slowrand(n) fract(sin(mod(dot(n, vec3(1.42887,8.6025,13.1525)), 3.14159))*627.7327)
-        #define fastrand(n) fract(dot(n, vec3(14.11,86.56,131.43)))
+        #define fastrand(n) fract(dot(n, vec3(131.43,14.11,86.56)))
         
         void rotate(inout vec2 v, in float angle){
             float t = v.x;
@@ -50,7 +50,8 @@
         
         
         float terrain(in vec3 p){
-            float x = dot(p, p)*0.075 - 1.2;// - fastrand(p) * 0.3;
+            p.x *= 0.5;
+            float x = dot(p, p)*0.075 * (fastrand(p) * 0.75 + 1.0) - 1.5;
             return 1.0 - x*x;
         }
         
