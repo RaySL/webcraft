@@ -12,7 +12,7 @@ function terrain(pos){
     var rand = vec3.dot(f, new vec3(14.11,86.56,131.43));
     rand = rand - Math.floor(rand|0);
     
-    var x = vec3.dot(f, f)*0.075 - 1.0 - rand * 0.3;
+    var x = vec3.dot(f, f)*0.075 - 1.2;// - rand * 0.3;
     return 1.0 - x*x < 0.0;
 }
 
@@ -47,8 +47,27 @@ Player.prototype = {
         this.collideZ();
     },
     touch: function(){
+        //check corners of cube
         return terrain(new vec3(this.position.x + 0.5,
                                 this.position.y + 0.5,
+                                this.position.z + 0.5)) || 
+               terrain(new vec3(this.position.x + 0.5,
+                                this.position.y + 0.5,
+                                this.position.z - 0.5)) ||
+               terrain(new vec3(this.position.x + 0.5,
+                                this.position.y - 0.5,
+                                this.position.z + 0.5)) ||
+               terrain(new vec3(this.position.x - 0.5,
+                                this.position.y + 0.5,
+                                this.position.z + 0.5)) || 
+               terrain(new vec3(this.position.x + 0.5,
+                                this.position.y - 0.5,
+                                this.position.z - 0.5)) || 
+               terrain(new vec3(this.position.x - 0.5,
+                                this.position.y + 0.5,
+                                this.position.z - 0.5)) || 
+               terrain(new vec3(this.position.x - 0.5,
+                                this.position.y - 0.5,
                                 this.position.z + 0.5)) || 
                terrain(new vec3(this.position.x - 0.5,
                                 this.position.y - 0.5,

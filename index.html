@@ -50,7 +50,7 @@
         
         
         float terrain(in vec3 p){
-            float x = dot(p, p)*0.075 - 1.0 - fastrand(p) * 0.3;
+            float x = dot(p, p)*0.075 - 1.2;// - fastrand(p) * 0.3;
             return 1.0 - x*x;
         }
         
