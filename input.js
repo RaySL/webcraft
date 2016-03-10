@@ -24,6 +24,10 @@ var Input = {
     
     mouse: function(){
         return this._mouse;
+    },
+    
+    space: function(){
+        return this._keys[32];
     }
 };
 

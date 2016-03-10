@@ -30,8 +30,9 @@ shader.addUniform(position);
 
 var rate = 1000 / 50; //50fps
 function frame(){
-    player.update();
     player.control();
+    player.update();
+    player.collide();
     
     shader.updateUniforms();
     shader.display();
