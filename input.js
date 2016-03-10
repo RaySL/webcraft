@@ -33,9 +33,11 @@ var Input = {
 
 window.addEventListener("keydown", function(event){
     Input._keys[event.keyCode] = 1;
+    event.preventDefault();
 });
 window.addEventListener("keyup", function(event){
     Input._keys[event.keyCode] = 0;
+    event.preventDefault();
 });
 canvas.addEventListener("mousemove", function(event){
     Input._mouse = [
