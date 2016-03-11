@@ -1,6 +1,6 @@
 /*global vec3*/
 /*global Input*/
-/*global collision*/
+/*global collideScene, collideSceneX, collideSceneY, collideSceneZ*/
 
 function mix(a, b, v){
     return a * (1.0 - v) + b * v;
@@ -75,6 +75,9 @@ Player.prototype = {
     getPositionUniform: function(){
         return [this.position.x, this.position.y, this.position.z];
     },
+    getVelocityUniform: function(){
+        return [this.velocity.x, this.velocity.y, this.velocity.z];
+    },
     
     update: function(){
         this.velocity.scalar_mul(0.99);
@@ -85,6 +88,7 @@ Player.prototype = {
     },
     
     collide: function(){
+        collideScene();
         this.collideX();
         this.collideY();
         this.collideZ();
@@ -123,7 +127,7 @@ Player.prototype = {
     collideX: function(){
         this.position.x += this.velocity.x;
         
-        if (this.touch()) {   
+        if (collideSceneX()) {   
             this.position.x -= this.velocity.x;
             this.velocity.x *= -0.1;//new vec3(0.0, 0.0, 0.0);
         }
@@ -132,7 +136,7 @@ Player.prototype = {
         this.position.y += this.velocity.y;
         
         this.grounded = false;
-        if (this.touch()) {
+        if (collideSceneY()) {
             if (this.velocity.y > 0.0){
                 this.grounded = true;
             }
@@ -143,7 +147,7 @@ Player.prototype = {
     collideZ: function(){
         this.position.z += this.velocity.z;
         
-        if (this.touch()) {
+        if (collideSceneZ()) {
             this.position.z -= this.velocity.z;
             this.velocity.z *= -0.1;
         }

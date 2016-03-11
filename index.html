@@ -40,8 +40,9 @@
         #define fastrand(n) fract(dot(n, vec3(131.43,14.11,86.56)))
         
         
-        float hash( in float n ) { return fract(sin(n)*753.5453123); }
+        //float hash( in float n ) { return fract(sin(n)*753.5453123); }
         //float hash( in float n ) { return fract(fract(n)*753.5453123); }
+        #define hash(n) fract(sin(mod(n, 3.14159))*627.7327)
         float noise( in vec3 x )
         {
             vec3 p = floor(x);
@@ -57,7 +58,7 @@
         
         float terrain(in vec3 p){
             p *= 0.2;
-            float x = noise(p) + 0.3 + hash(p.x + p.y*157.0 + 113.0*p.z) * 0.2;
+            float x = noise(p) + 0.4 + hash(p.x + p.y*157.0 + 113.0*p.z) * 0.1;
             return 1.0 - x*x;
         }
         
