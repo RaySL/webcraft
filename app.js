@@ -42,7 +42,9 @@ function frame(){
     });
 }
 
-window.requestAnimationFrame(frame);
+window.addEventListener("load", function(){
+    window.requestAnimationFrame(frame);
+});
 
 
 
