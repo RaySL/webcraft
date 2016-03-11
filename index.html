@@ -24,7 +24,7 @@
         
         #define FOCAL_LENGTH 1.0
         
-        #define MARCH_STEPS 24
+        #define MARCH_STEPS 28
         #define MARCH_FADE  20.0
         
         #define AMBIENT_LIGHT vec3(0.32, 0.36, 0.4)
@@ -56,12 +56,8 @@
         }
         
         float terrain(in vec3 p){
-            
-            
-            p *= 0.3;
-            //p.x *= 0.5;
-            //float x = dot(p, p)*0.075 * (fastrand(p) * 0.75 + 1.0) - 1.5;
-            float x = noise(p) + 0.5;
+            p *= 0.2;
+            float x = noise(p) + 0.3 + hash(p.x + p.y*157.0 + 113.0*p.z) * 0.2;
             return 1.0 - x*x;
         }
         
@@ -152,4 +148,5 @@
     <script type="text/javascript" src="input.js"></script>
     <script type="text/javascript" src="player.js"></script>
     <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="collision.js"></script>
 </html>

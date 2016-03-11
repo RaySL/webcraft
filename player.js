@@ -1,5 +1,6 @@
 /*global vec3*/
 /*global Input*/
+/*global collision*/
 
 function mix(a, b, v){
     return a * (1.0 - v) + b * v;
@@ -55,7 +56,7 @@ function terrain(pos){
 function Player(){
     this.direction = new vec3(0.0, 0.0, 1.0);
     
-    this.position = new vec3(0.0, 0.0, 0.0);
+    this.position = new vec3(0.0, 0.0, 1.0);
     this.velocity = new vec3(0.0, 0.0, 0.0);
     
     this.speed = 0.005;
@@ -88,7 +89,7 @@ Player.prototype = {
         this.collideY();
         this.collideZ();
     },
-    touch: function(){
+    /*touch: function(){
         //check corners of cube
         return terrain(new vec3(this.position.x + 0.4,
                                 this.position.y + 0.4,
@@ -114,6 +115,9 @@ Player.prototype = {
                terrain(new vec3(this.position.x - 0.4,
                                 this.position.y - 0.4,
                                 this.position.z - 0.4));
+    },*/
+    touch: function(){
+        return collision();
     },
     
     collideX: function(){
