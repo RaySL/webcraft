@@ -1,5 +1,7 @@
-attribute vec3 coordinate;
+attribute vec4 coordinate;
+uniform mat4 perspective;
+uniform float time;
 
 void main(void) {
-    gl_Position = vec4(coordinate, 1.0);
+    gl_Position = perspective * coordinate;
 }
