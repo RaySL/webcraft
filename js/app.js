@@ -1,10 +1,11 @@
 /*global PixelShader, PixelShaderUniform*/
 /*global Player, Input*/
 /*global getFile*/
+/*global VoxelRenderer*/
 
 
 var canvas = document.getElementsByTagName("canvas")[0];
-var shader = new PixelShader(canvas);
+/*var shader = new PixelShader(canvas);
 
 var player = new Player();
 var direction = new PixelShaderUniform("direction", "uniform3f", player.getDirectionUniform, player);
@@ -17,11 +18,11 @@ var mouse = new PixelShaderUniform("mouse", "uniform2f", Input.mouse, Input);
 shader.addUniform(mouse);
 
 var time = new PixelShaderUniform("time", "uniform1f", function(){return Date.now();}, null);
-shader.addUniform(time);
+shader.addUniform(time);*/
 
 
 
-var rate = 1000 / 50; //50fps
+/*var rate = 1000 / 50; //50fps
 function frame(){
     player.control();
     player.update();
@@ -33,16 +34,33 @@ function frame(){
     window.requestAnimationFrame(function(){
         window.setTimeout(frame, rate);
     });
-}
+}*/
 
-//launch
+var voxel = new VoxelRenderer(canvas);
+function draw(){
+    voxel.display();
+    
+    window.setTimeout(function(){
+        window.requestAnimationFrame(draw);
+    }, 1000/60);
+}
 window.addEventListener("load", function(){
-    getFile("GLSL/terrain.glsl", function(terrain){
-        getFile("GLSL/render.glsl", function(render){
-            shader.code = terrain + render;
-            shader.setup();
+    getFile("GLSL/fragment.glsl", function(fragment){
+        getFile("GLSL/vertex.glsl", function(vertex){
+            voxel.fragmentCode = fragment;
+            voxel.vertexCode = vertex;
             
-            window.requestAnimationFrame(frame);
+            voxel.setup();
+            
+            window.requestAnimationFrame(draw);
         });
     });
 });
+
+
+
+
+
+
+
+
