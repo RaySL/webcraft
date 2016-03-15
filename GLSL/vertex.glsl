@@ -1,7 +1,8 @@
 attribute vec4 coordinate;
-uniform mat4 perspective;
-uniform float time;
+uniform mat4 transform;
+
+varying vec3 vNormal;
 
 void main(void) {
-    gl_Position = perspective * coordinate;
+    gl_Position = transform * coordinate;
 }

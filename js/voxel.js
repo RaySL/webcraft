@@ -41,6 +41,16 @@ function VoxelRenderer(canvas){
     };
     
     this.initTime = Date.now();
+    
+    this.vertices = [+0.5, +0.5, +0.5,
+                        +0.5, -0.5, +0.5,
+                        -0.5, +0.5, +0.5,
+                        -0.5, -0.5, +0.5,
+                        +0.5, +0.5, -0.5,
+                        +0.5, -0.5, -0.5,
+                        -0.5, +0.5, -0.5,
+                        -0.5, -0.5, -0.5];
+    this.indices = [0,1,2, 3,1,2, 4,5,6, 7,5,6, 0,4,5, 0,1,5, 2,6,7, 2,3,7, 0,4,6, 0,2,6, 1,5,7, 1,3,7];
 }
 
 VoxelRenderer.prototype = {
@@ -64,22 +74,11 @@ VoxelRenderer.prototype = {
         var index_buffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
         
-        
-        var vertices = [+0.5, +0.5, +0.5,
-                        +0.5, -0.5, +0.5,
-                        -0.5, +0.5, +0.5,
-                        -0.5, -0.5, +0.5,
-                        +0.5, +0.5, -0.5,
-                        +0.5, -0.5, -0.5,
-                        -0.5, +0.5, -0.5,
-                        -0.5, -0.5, -0.5];
-        var indices = [0,1,2, 3,1,2, 4,5,6, 7,5,6, 0,4,5, 0,1,5, 2,6,7, 2,3,7, 0,4,6, 0,2,6, 1,5,7, 1,3,7];
-        
         //vertex buffer
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
         
         //Index buffer
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
         
         //gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         //gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -121,6 +120,30 @@ VoxelRenderer.prototype = {
         }
         
     },
+    addVoxel: function(x, y, z){
+        var s = this.vertices.length;
+        this.vertices = this.vertices.concat([x  , y  , z  ,
+                                              x+1, y  , z  ,
+                                              x  , y+1, z  ,
+                                              x+1, y+1, z  ,
+                                              x  , y  , z+1,
+                                              x+1, y  , z+1,
+                                              x  , y+1, z+1,
+                                              x+1, y+1, z+1]);
+                                              
+        this.indices = this.indices.concat([s+0,s+1,s+2, 
+                                            s+3,s+1,s+2, 
+                                            s+4,s+5,s+6, 
+                                            s+7,s+5,s+6, 
+                                            s+0,s+4,s+5, 
+                                            s+0,s+1,s+5, 
+                                            s+2,s+6,s+7, 
+                                            s+2,s+3,s+7, 
+                                            s+0,s+4,s+6, 
+                                            s+0,s+2,s+6, 
+                                            s+1,s+5,s+7, 
+                                            s+1,s+3,s+7]);
+    },
     display: function(){
         var gl = this.gl;
         
@@ -135,15 +158,15 @@ VoxelRenderer.prototype = {
         
         var mat = new Float32Array([1, 0, 0, 0,
                                     0, 1, 0, 0,
-                                    0, 0, 1, 0,
-                                    0, 0, .5, 1]);
-                                    
+                                    0, 0, 1, 0.5,
+                                    0, 0, 0.5, 1]);
+        
         mat = matrixMul4(mat,  new Float32Array([Math.cos(secs), 0, -Math.sin(secs), 0,
                                                 0, 1, 0, 0,
                                                 Math.sin(secs), 0, Math.cos(secs), 0,
                                                 0, 0, 0, 1]));
         
-        var persp = gl.getUniformLocation(this.program, "perspective");
+        var persp = gl.getUniformLocation(this.program, "transform");
         gl.uniformMatrix4fv(persp, false, mat);
         
         gl.clearColor(0.5, 0.5, 0.5, 1.0);
