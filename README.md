@@ -1,2 +1,2 @@
-# webcraft
-A minecraft-like game for browsers
+## webcraft
+An editable voxel world -- not at all inspired by anything else...
