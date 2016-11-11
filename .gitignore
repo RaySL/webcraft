@@ -1,2 +1,5 @@
 #Ignore node stuff:
 /node_modules/
+
+#Ignore Webpack config file
+/webpack.config.js
