@@ -1,0 +1,20 @@
+{
+  "name": "webcraft",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A voxel engine for browsers",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swax97/webcraft.git"
+  },
+  "author": "RayL",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/swax97/webcraft/issues"
+  },
+  "homepage": "https://github.com/swax97/webcraft#readme"
+}
