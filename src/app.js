@@ -2,8 +2,8 @@ var fragSrc = require('./shaders/frag.glsl');
 var vertSrc = require('./shaders/vert.glsl');
 
 var marchingcubes = require('./marchingcubes.js');
+var Mat4 = require('./matrix4.js');
 
-console.log("Is this code being executed?");
 
 var gl, program, canvas;
 var meshverts, meshcolors;
@@ -18,8 +18,8 @@ var isofunction = function(x, y, z) {
 
 //Initialize shaders and draw surface
 var setup = function(){
-    meshverts = marchingcubes(isofunction, 0, 0, 0, 6, 6, 6);
-    meshcolors = new Uint8Array(meshverts.length);
+    meshverts = new Float32Array(marchingcubes(isofunction, -16, -16, -16, 16, 16, 16));
+    meshcolors = new Uint8Array(meshverts);
 
     for (var i = 0; i < meshcolors.length; i+=3){
         var m = Math.sin(0.8*(meshverts[i] + meshverts[i+1] + meshverts[i+2]));
@@ -31,9 +31,9 @@ var setup = function(){
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     //gl.viewport(0, 0, width, height);
 
-    //gl.enable(gl.CULL_FACE);
-    //gl.enable(gl.DEPTH_TEST);
-    //gl.depthFunc(gl.LEQUAL);
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
 
     //Create shaders
     var fragment = gl.createShader(gl.FRAGMENT_SHADER);
@@ -47,13 +47,13 @@ var setup = function(){
     //Compile 'em!
     gl.compileShader(vertex);
     if(!gl.getShaderParameter(vertex, gl.COMPILE_STATUS)) {
-        console.log("Vertex error:\n" + gl.getShaderInfoLog(vertex));
+        console.log('Vertex error:\n' + gl.getShaderInfoLog(vertex));
         return;
     }
 
     gl.compileShader(fragment);
     if(!gl.getShaderParameter(fragment, gl.COMPILE_STATUS)) {
-        console.log("Fragment error:\n" + gl.getShaderInfoLog(fragment));
+        console.log('Fragment error:\n' + gl.getShaderInfoLog(fragment));
         return;
     }
 
@@ -66,21 +66,21 @@ var setup = function(){
 
     //Check for errors
     if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        console.log("Linking Error:\n" + gl.getProgramInfoLog(program));
+        console.log('Linking Error:\n' + gl.getProgramInfoLog(program));
         return;
     }
 
 
 
     //Load colors
-    //var colorBuffer = gl.createBuffer();
-    //gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    //gl.bufferData(gl.ARRAY_BUFFER, meshcolors, gl.STATIC_DRAW);
+    var colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, meshcolors, gl.STATIC_DRAW);
 
     //Enable Color attribute
-    //var colorLocation = gl.getAttribLocation(program, 'a_color');
-    //gl.enableVertexAttribArray(colorLocation);
-    //gl.vertexAttribPointer(colorLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+    var colorLocation = gl.getAttribLocation(program, 'a_color');
+    gl.enableVertexAttribArray(colorLocation);
+    gl.vertexAttribPointer(colorLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
 
     //Load vertices
     var buffer = gl.createBuffer();
@@ -106,19 +106,18 @@ var display = function(time){
     //var uniformLocation = gl.getUniformLocation(program, 'res');
     //gl.uniform2f(uniformLocation, width, height);
 
-    var projMat = Mat4.perspective(1.2, width/height, 1, 2000);
-    //var projMat = Mat4.projection(1.2, width/height, 10, 2000);
+    var projMat = Mat4.perspective(1, canvas.width/canvas.height, 1, 1e3);
 
-    var cameraMat = Mat4.yRotation(time / 1000);
-    cameraMat = Mat4.multiply(cameraMat, Mat4.translation(0, 75, 340));
-    //cameraMat = Mat4.multiply(cameraMat, Mat4.scaling(-1, -1, 1));
+    var cameraMat = Mat4.zRotation(time / 1000);
+    cameraMat = Mat4.multiply(cameraMat, Mat4.yRotation(time / 1190));
+    cameraMat = Mat4.multiply(cameraMat, Mat4.xRotation(time / 1310));
+    cameraMat = Mat4.multiply(cameraMat, Mat4.translation(0, 0, 35));
 
     var viewMat = Mat4.inverse(cameraMat);
     var viewProjMat = Mat4.multiply(projMat, viewMat);
 
-    var matrixLocation = gl.getUniformLocation(program, 'u_matrix');
-
-    gl.uniformMatrix4fv(matrixLocation, 0, projMat);//viewProjMat);
+    var matrixLocation = gl.getUniformLocation(program, "u_matrix");
+    gl.uniformMatrix4fv(matrixLocation, 0, viewProjMat);
 
     gl.drawArrays(gl.TRIANGLES, 0, meshverts.length / 3);
 
@@ -127,9 +126,12 @@ var display = function(time){
 
 
 
-window.addEventListener("load", function(){
-  console.log("window loaded");
-  canvas = document.createElement("canvas");
+window.addEventListener('load', function(){
+  canvas = document.createElement('canvas');
+
+  canvas.width = 400;
+  canvas.height = 400;
+
   document.body.appendChild(canvas);
 
   var attr = {
@@ -146,7 +148,7 @@ window.addEventListener("load", function(){
        canvas.getContext('experimental-webgl', attr);
 
   if (!gl){
-    console.log("We're experiencing some technical difficulties.... Please enable WebGL");
+    console.log('We\'re experiencing some technical difficulties.... Please enable WebGL');
     return;
   }
 
