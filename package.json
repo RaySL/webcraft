@@ -5,7 +5,8 @@
   "description": "A voxel engine for browsers",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "webpack",
+    "deploy": "google-chrome index.html"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,12 @@
   "bugs": {
     "url": "https://github.com/swax97/webcraft/issues"
   },
-  "homepage": "https://github.com/swax97/webcraft#readme"
+  "homepage": "https://github.com/swax97/webcraft#readme",
+  "devDependencies": {
+    "glslify": "^6.0.1"
+  },
+  "dependencies": {
+    "glslify-loader": "^1.0.2",
+    "raw-loader": "^0.5.1"
+  }
 }
