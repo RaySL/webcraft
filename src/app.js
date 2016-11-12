@@ -9,40 +9,63 @@ var Mat4 = require('./matrix4.js');
 var gl, program, canvas;
 var meshverts, meshcolors;
 
-var isofunction = function(x, y, z) {
+var cameraPos = [0, 0, 15];
+
+/*var isofunction = function(x, y, z) {
     var a = 9 / (x * x + y * y * 0.05 + z * z);
     var b = 9 / (x * x * 0.05 + y * y + z * z);
     var c = 9 / (x * x + y * y + z * z * 0.05);
     return Math.sqrt(a*a+b*b+c*c) - 1;
-};
+};*/
 
 var vox = [
-  1,1,1,
-  1,1,1,
-  1,1,1,
+  1,1,1,1,1,
+  1,0,1,0,1,
+  1,1,1,1,1,
+  1,0,1,0,1,
+  1,1,1,1,1,
 
-  1,1,1,
-  1,1,1,
-  1,1,1,
+  1,0,1,0,1,
+  0,0,0,0,0,
+  1,0,1,0,1,
+  0,0,0,0,0,
+  1,0,1,0,1,
 
-  1,1,1,
-  1,1,1,
-  1,1,1
+  1,1,1,1,1,
+  1,0,1,0,1,
+  1,1,1,1,1,
+  1,0,1,0,1,
+  1,1,1,1,1,
+
+  1,0,1,0,1,
+  0,0,0,0,0,
+  1,0,1,0,1,
+  0,0,0,0,0,
+  1,0,1,0,1,
+
+  1,1,1,1,1,
+  1,0,1,0,1,
+  1,1,1,1,1,
+  1,0,1,0,1,
+  1,1,1,1,1
 ];
+
+var vwidth = 5;
+var vheight = 5;
+var vdepth = 5;
 
 
 //Initialize shaders and draw surface
 var setup = function(){
-  var v = faces(vox, 3, 3, 3);
+  var v = faces(vox, vwidth, vheight, vdepth);
   var vo = [];
   for (var i = 0; i < v.length; i++){
     vo[i*3+0] = v[i][0];
     vo[i*3+1] = v[i][1];
     vo[i*3+2] = v[i][2];
   }
-  meshverts = new Float32Array(vo);
-  //meshverts = new Float32Array(marchingcubes(isofunction, -16, -16, -16, 16, 16, 16));
 
+  meshverts = new Float32Array(vo);
   meshcolors = new Uint8Array(meshverts);
 
   for (var i = 0; i < meshcolors.length; i+=3){
@@ -129,12 +152,13 @@ var display = function(time){
   //var uniformLocation = gl.getUniformLocation(program, 'res');
   //gl.uniform2f(uniformLocation, width, height);
 
-  var projMat = Mat4.perspective(1, canvas.width/canvas.height, 1, 1e3);
+  var projMat = Mat4.perspective(1, canvas.width/canvas.height, 1, 1000);
 
-  var cameraMat = Mat4.zRotation(time / 1000);
-  cameraMat = Mat4.multiply(cameraMat, Mat4.yRotation(time / 1190));
-  cameraMat = Mat4.multiply(cameraMat, Mat4.xRotation(time / 1310));
-  cameraMat = Mat4.multiply(cameraMat, Mat4.translation(0, 0, 10));
+  var cameraMat = Mat4.translation(vwidth / 2, vheight / 2, vdepth / 2);
+  //cameraMat = Mat4.multiply(cameraMat, Mat4.zRotation(time / 1000));
+  //cameraMat = Mat4.multiply(cameraMat, Mat4.yRotation(time / 1190));
+  //cameraMat = Mat4.multiply(cameraMat, Mat4.xRotation(time / 1310));
+  cameraMat = Mat4.multiply(cameraMat, Mat4.translation(cameraPos[0], cameraPos[1], cameraPos[2]));
 
   var viewMat = Mat4.inverse(cameraMat);
   var viewProjMat = Mat4.multiply(projMat, viewMat);
@@ -171,10 +195,32 @@ window.addEventListener('load', function(){
        canvas.getContext('experimental-webgl', attr);
 
   if (!gl){
-    console.log('We\'re experiencing some technical difficulties.... Please enable WebGL');
+    console.log('We\'re experiencing some technical difficulties.... WebGL is disabled');
     return;
   }
 
   setup();
   window.requestAnimationFrame(display);
 });
+
+var step = 0.3;
+window.addEventListener('keydown', function(event){
+  if (event.keyCode == 39){
+    cameraPos[0] += step;
+  }
+  if (event.keyCode == 37){
+    cameraPos[0] -= step;
+  }
+  if (event.keyCode == 81){
+    cameraPos[1] += step;
+  }
+  if (event.keyCode == 69){
+    cameraPos[1] -= step;
+  }
+  if (event.keyCode == 40){
+    cameraPos[2] += step;
+  }
+  if (event.keyCode == 38){
+    cameraPos[2] -= step;
+  }
+})
