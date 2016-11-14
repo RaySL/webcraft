@@ -5,8 +5,7 @@
   "description": "A voxel engine for browsers",
   "main": "app.js",
   "scripts": {
-    "test": "webpack",
-    "deploy": "google-chrome index.html"
+    "test": "webpack --optimize-occurrence-order && opera index.html"
   },
   "repository": {
     "type": "git",
