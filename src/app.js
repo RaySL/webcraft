@@ -2,21 +2,21 @@ var fragSrc = require('./shaders/frag.glsl');
 var vertSrc = require('./shaders/vert.glsl');
 
 //var marchingcubes = require('./marchingcubes.js');
-var faces = require('./voxelpoly.js')
-var Mat4 = require('./matrix4.js');
+var faces = require('./voxelpoly.js');
+
+var vec = require('./vector.js');
+var mat = require('./matrix.js');
+var cam = require('./camera.js');
+
+var mat4 = mat.mat4;
+var vec3 = vec.vec3;
+
 
 
 var gl, program, canvas;
 var meshverts, meshcolors;
 
 var cameraPos = [0, 0, 15];
-
-/*var isofunction = function(x, y, z) {
-    var a = 9 / (x * x + y * y * 0.05 + z * z);
-    var b = 9 / (x * x * 0.05 + y * y + z * z);
-    var c = 9 / (x * x + y * y + z * z * 0.05);
-    return Math.sqrt(a*a+b*b+c*c) - 1;
-};*/
 
 var vox = [
   1,1,1,1,1,
@@ -50,9 +50,13 @@ var vox = [
   1,1,1,1,1
 ];
 
-var vwidth = 5;
-var vheight = 5;
-var vdepth = 5;
+var vwidth = 10;
+var vheight = 10;
+var vdepth = 10;
+
+for (var i = 0; i < vwidth*vheight*vdepth; i++){
+  vox[i] = Math.random()*1.4|0;
+}
 
 
 //Initialize shaders and draw surface
@@ -139,10 +143,19 @@ var setup = function(){
   gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 };
 
+var camp = vec3.create();
+var objp = vec3.create();
+
+var tmat = mat4.create();
+var projMat = mat4.create();
+var cameraMat = mat4.create();
+var viewMat = mat4.create();
+var viewProjMat = mat4.create();
+
 //Draw routine
 var display = function(time){
   // Clear the canvas.
-  gl.clearColor(0.4,0.0,0.1,1.0);
+  gl.clearColor(0.2,0.0,0.05,1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   //Update uniform values
@@ -152,16 +165,14 @@ var display = function(time){
   //var uniformLocation = gl.getUniformLocation(program, 'res');
   //gl.uniform2f(uniformLocation, width, height);
 
-  var projMat = Mat4.perspective(1, canvas.width/canvas.height, 1, 1000);
+  cam.perspective(projMat, 1.2, canvas.width/canvas.height, 1, 1000)
 
-  var cameraMat = Mat4.translation(vwidth / 2, vheight / 2, vdepth / 2);
-  //cameraMat = Mat4.multiply(cameraMat, Mat4.zRotation(time / 1000));
-  //cameraMat = Mat4.multiply(cameraMat, Mat4.yRotation(time / 1190));
-  //cameraMat = Mat4.multiply(cameraMat, Mat4.xRotation(time / 1310));
-  cameraMat = Mat4.multiply(cameraMat, Mat4.translation(cameraPos[0], cameraPos[1], cameraPos[2]));
+  vec3.assignFromArgs(camp, 15*Math.cos(time/600) + vwidth/2, vheight / 2, 15*Math.sin(time/600) + vdepth/2);
+  vec3.assignFromArgs(objp, vwidth / 2, vheight / 2, vdepth / 2);
+  cam.lookAt(cameraMat, camp, objp);
 
-  var viewMat = Mat4.inverse(cameraMat);
-  var viewProjMat = Mat4.multiply(projMat, viewMat);
+  mat4.inverse(viewMat, cameraMat);
+  mat4.multiply(viewProjMat, projMat, viewMat);
 
   var matrixLocation = gl.getUniformLocation(program, "u_matrix");
   gl.uniformMatrix4fv(matrixLocation, 0, viewProjMat);
