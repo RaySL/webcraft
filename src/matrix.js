@@ -1,8 +1,3 @@
-var vec = require('./vector.js');
-var vec2 = vec.vec2;
-var vec3 = vec.vec3;
-var vec4 = vec.vec4;
-
 //TODO: Multiply vectors by matrices
 
 var mat2 = {};//TODO: Implement mat2
@@ -182,7 +177,6 @@ mat4.rotateZ = function(out, ang){
 };
 
 mat4.scale = function(out, v){
-  var c = Math.cos(ang), s = Math.sin(ang);
   out[0]  = v[0]; out[1]  = 0;    out[2]  = 0;    out[3]  = 0;
   out[4]  = 0;    out[5]  = v[1]; out[6]  = 0;    out[7]  = 0;
   out[8]  = 0;    out[9]  = 0;    out[10] = v[2]; out[11] = 0;

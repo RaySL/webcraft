@@ -3,3 +3,7 @@
 
 #Ignore Webpack config file
 /webpack.config.js
+
+#Ignore eslint files
+.eslintignore
+.eslintrc.json

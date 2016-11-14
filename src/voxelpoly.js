@@ -5,7 +5,7 @@ function faces(values, width, height, depth){
   var vc = 0;
   var verts = [];
 
-  var cx, cy, cz;
+  /*jshint -W041 */
 
   for (var x = 0; x < width; x++)
   for (var y = 0; y < height; y++)
@@ -67,7 +67,7 @@ function faces(values, width, height, depth){
     }
   }
 
-  console.log(verts.length / 6 + " faces in mesh");
+  /*jshint +W041 */
 
   return verts;
 }

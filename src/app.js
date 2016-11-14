@@ -2,7 +2,6 @@ var fragSrc = require('./shaders/frag.glsl');
 var vertSrc = require('./shaders/vert.glsl');
 
 var faces = require('./voxelpoly.js');
-
 var vec = require('./vector.js');
 var mat = require('./matrix.js');
 var cam = require('./camera.js');
@@ -33,7 +32,7 @@ var setup = function(){
   //TODO: find a better voxel polygonization method (0fps.net)
   var v = faces(vox, vwidth, vheight, vdepth);
   var vo = [];
-  for (var i = 0; i < v.length; i++){
+  for (i = 0; i < v.length; i++){
     vo[i*3+0] = v[i][0];
     vo[i*3+1] = v[i][1];
     vo[i*3+2] = v[i][2];
@@ -44,7 +43,7 @@ var setup = function(){
   meshverts = new Float32Array(vo);
   meshcolors = new Uint8Array(meshverts);
 
-  for (var i = 0; i < meshcolors.length; i+=3){
+  for (i = 0; i < meshcolors.length; i+=3){
       var m = Math.sin(0.8*(meshverts[i] + meshverts[i+1] + meshverts[i+2]));
       meshcolors[i+0] = (Math.sin(meshverts[i+0] + 2.094)*m*4 + 4) << 5;
       meshcolors[i+1] = (Math.sin(meshverts[i+1] + 0.000)*m*4 + 4) << 5;
@@ -69,13 +68,13 @@ var setup = function(){
   //Compile 'em!
   gl.compileShader(vertex);
   if(!gl.getShaderParameter(vertex, gl.COMPILE_STATUS)) {
-      console.log('Vertex error:\n' + gl.getShaderInfoLog(vertex));
+      console.log('Vertex error:\\n' + gl.getShaderInfoLog(vertex));
       return;
   }
 
   gl.compileShader(fragment);
   if(!gl.getShaderParameter(fragment, gl.COMPILE_STATUS)) {
-      console.log('Fragment error:\n' + gl.getShaderInfoLog(fragment));
+      console.log('Fragment error:\\n' + gl.getShaderInfoLog(fragment));
       return;
   }
 
@@ -88,7 +87,7 @@ var setup = function(){
 
   //Check for errors
   if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.log('Linking Error:\n' + gl.getProgramInfoLog(program));
+      console.log('Linking Error:\\n' + gl.getProgramInfoLog(program));
       return;
   }
 
@@ -117,7 +116,6 @@ var setup = function(){
 var camp = vec3.create();
 var objp = vec3.create();
 
-var tmat = mat4.create();
 var projMat = mat4.create();
 var cameraMat = mat4.create();
 var viewMat = mat4.create();

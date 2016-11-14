@@ -5,7 +5,8 @@
   "description": "A voxel engine for browsers",
   "main": "app.js",
   "scripts": {
-    "test": "webpack --optimize-occurrence-order && opera index.html"
+    "build": "webpack --optimize-occurence-order",
+    "test": "npm run build && opera index.html"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,7 @@
   },
   "homepage": "https://github.com/swax97/webcraft#readme",
   "devDependencies": {
+    "eslint": "^3.10.1",
     "glslify": "^6.0.1"
   },
   "dependencies": {
