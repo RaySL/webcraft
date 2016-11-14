@@ -1,3 +1,6 @@
+//TODO: Implement with Float32Array
+//TODO: Consider hashing functions
+
 function faces(values, width, height, depth){
   var vc = 0;
   var verts = [];
@@ -65,7 +68,7 @@ function faces(values, width, height, depth){
   }
 
   console.log(verts.length / 6 + " faces in mesh");
-  
+
   return verts;
 }
 

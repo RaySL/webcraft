@@ -47,7 +47,6 @@
 	var fragSrc = __webpack_require__(1);
 	var vertSrc = __webpack_require__(2);
 
-	//var marchingcubes = require('./marchingcubes.js');
 	var faces = __webpack_require__(3);
 
 	var vec = __webpack_require__(4);
@@ -63,49 +62,20 @@
 	var gl, program, canvas;
 	var meshverts, meshcolors;
 
-	var vox = [
-	  1,1,1,1,1,
-	  1,0,1,0,1,
-	  1,1,1,1,1,
-	  1,0,1,0,1,
-	  1,1,1,1,1,
-
-	  1,0,1,0,1,
-	  0,0,0,0,0,
-	  1,0,1,0,1,
-	  0,0,0,0,0,
-	  1,0,1,0,1,
-
-	  1,1,1,1,1,
-	  1,0,1,0,1,
-	  1,1,1,1,1,
-	  1,0,1,0,1,
-	  1,1,1,1,1,
-
-	  1,0,1,0,1,
-	  0,0,0,0,0,
-	  1,0,1,0,1,
-	  0,0,0,0,0,
-	  1,0,1,0,1,
-
-	  1,1,1,1,1,
-	  1,0,1,0,1,
-	  1,1,1,1,1,
-	  1,0,1,0,1,
-	  1,1,1,1,1
-	];
+	var vox = [];
 
 	var vwidth = 10;
 	var vheight = 10;
 	var vdepth = 10;
 
-	for (var i = 0; i < vwidth*vheight*vdepth; i++){
-	  vox[i] = Math.random()*1.4|0;
-	}
-
 
 	//Initialize shaders and draw surface
 	var setup = function(){
+	  //Generate voxel values
+	  for (var i = 0; i < vwidth*vheight*vdepth; i++){
+	    vox[i] = Math.random()*1.4|0;
+	  }
+
 	  //TODO: find a better voxel polygonization method (0fps.net)
 	  var v = faces(vox, vwidth, vheight, vdepth);
 	  var vo = [];
@@ -266,7 +236,7 @@
 /* 1 */
 /***/ function(module, exports) {
 
-	module.exports = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n  precision highp float;\n#else\n  precision mediump float;\n#define GLSLIFY 1\n#endif\n\n\nuniform float time;\nuniform vec2 res;\n\nvarying vec4 v_color;\n\nvoid main(void){\n  gl_FragColor = v_color;\n}\n"
+	module.exports = "/*\nfrag.glsl\n*/\n\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n  precision highp float;\n#else\n  precision mediump float;\n#define GLSLIFY 1\n#endif\n\n\nuniform float time;\nuniform vec2 res;\n\nvarying vec4 v_color;\n\nvoid main(void){\n  gl_FragColor = v_color;\n}\n"
 
 /***/ },
 /* 2 */
@@ -277,6 +247,9 @@
 /***/ },
 /* 3 */
 /***/ function(module, exports) {
+
+	//TODO: Implement with Float32Array
+	//TODO: Consider hashing functions
 
 	function faces(values, width, height, depth){
 	  var vc = 0;
@@ -345,7 +318,7 @@
 	  }
 
 	  console.log(verts.length / 6 + " faces in mesh");
-	  
+
 	  return verts;
 	}
 
@@ -402,6 +375,10 @@
 	  out[0] = a[0] - b[0];
 	  out[1] = a[1] - b[1];
 	};
+	vec2.negate = function(out, a){
+	  out[0] = -a[0];
+	  out[1] = -a[1];
+	};
 	vec2.dot = function(a, b){
 	  return a[0]*b[0] + a[1]*b[1];
 	};
@@ -414,19 +391,17 @@
 	  return Math.sqrt(x*x + y*y);
 	};
 	vec2.normalize = function(out, a){
-	  var x = a[0], y = a[1], z = a[2];
-	  var l = 1.0 / Math.sqrt(x*x + y*y + z*z);
+	  var x = a[0], y = a[1];
+	  var l = 1.0 / Math.sqrt(x*x + y*y);
 
 	  out[0] = x * l;
 	  out[1] = y * l;
-	  out[2] = z * l;
 	};
 	vec2.distance = function(a, b){
 	  var x = a[0] - b[0],
-	      y = a[1] - b[1],
-	      z = a[2] - b[2];
+	      y = a[1] - b[1];
 
-	  return Math.sqrt(x*x + y*y + z*z);
+	  return Math.sqrt(x*x + y*y);
 	};
 
 	vec2.I = vec2.createFromArgs(1, 0);
@@ -484,10 +459,10 @@
 	  out[1] = a[1] - b[1];
 	  out[2] = a[2] - b[2];
 	};
-	vec3.negate = function(a){
-	  a[0] = -a[0];
-	  a[1] = -a[1];
-	  a[2] = -a[2];
+	vec3.negate = function(out, a){
+	  out[0] = -a[0];
+	  out[1] = -a[1];
+	  out[2] = -a[2];
 	};
 
 	vec3.dot = function(a, b){
@@ -841,7 +816,6 @@
 	var mat = __webpack_require__(5);
 
 	var vec3 = vec.vec3;
-	var vec4 = vec.vec4;
 	var mat4 = mat.mat4;
 
 
@@ -853,7 +827,6 @@
 	  var u = vec3.create();
 	  var v = vec3.create();
 	  var w = vec3.create();
-	  var m = mat4.create();
 
 	  /**
 	    A classic LookAt matrix calculation
@@ -877,6 +850,7 @@
 	      eye[0], eye[1], eye[2], 1
 	    ]);
 	  };
+
 	})(mat4, vec3);
 
 
@@ -903,6 +877,7 @@
 	        0,            0,    near * far * irange * 2,  0
 	    ]);
 	  };
+
 	})(mat4);
 
 

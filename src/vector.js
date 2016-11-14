@@ -44,6 +44,10 @@ vec2.subtract = function(out, a, b){
   out[0] = a[0] - b[0];
   out[1] = a[1] - b[1];
 };
+vec2.negate = function(out, a){
+  out[0] = -a[0];
+  out[1] = -a[1];
+};
 vec2.dot = function(a, b){
   return a[0]*b[0] + a[1]*b[1];
 };
@@ -56,19 +60,17 @@ vec2.magnitude = function(a){
   return Math.sqrt(x*x + y*y);
 };
 vec2.normalize = function(out, a){
-  var x = a[0], y = a[1], z = a[2];
-  var l = 1.0 / Math.sqrt(x*x + y*y + z*z);
+  var x = a[0], y = a[1];
+  var l = 1.0 / Math.sqrt(x*x + y*y);
 
   out[0] = x * l;
   out[1] = y * l;
-  out[2] = z * l;
 };
 vec2.distance = function(a, b){
   var x = a[0] - b[0],
-      y = a[1] - b[1],
-      z = a[2] - b[2];
+      y = a[1] - b[1];
 
-  return Math.sqrt(x*x + y*y + z*z);
+  return Math.sqrt(x*x + y*y);
 };
 
 vec2.I = vec2.createFromArgs(1, 0);
@@ -126,10 +128,10 @@ vec3.subtract = function(out, a, b){
   out[1] = a[1] - b[1];
   out[2] = a[2] - b[2];
 };
-vec3.negate = function(a){
-  a[0] = -a[0];
-  a[1] = -a[1];
-  a[2] = -a[2];
+vec3.negate = function(out, a){
+  out[0] = -a[0];
+  out[1] = -a[1];
+  out[2] = -a[2];
 };
 
 vec3.dot = function(a, b){

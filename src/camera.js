@@ -2,7 +2,6 @@ var vec = require('./vector.js');
 var mat = require('./matrix.js');
 
 var vec3 = vec.vec3;
-var vec4 = vec.vec4;
 var mat4 = mat.mat4;
 
 
@@ -14,7 +13,6 @@ var cam = {};
   var u = vec3.create();
   var v = vec3.create();
   var w = vec3.create();
-  var m = mat4.create();
 
   /**
     A classic LookAt matrix calculation
@@ -38,6 +36,7 @@ var cam = {};
       eye[0], eye[1], eye[2], 1
     ]);
   };
+
 })(mat4, vec3);
 
 
@@ -64,6 +63,7 @@ var cam = {};
         0,            0,    near * far * irange * 2,  0
     ]);
   };
+
 })(mat4);
 
 
