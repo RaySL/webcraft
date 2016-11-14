@@ -76,6 +76,12 @@ vec3.createFromArgs = function(x, y, z){
   return new Float32Array([x, y, z, 0]);
 };
 
+vec3.assignFromArgs = function(out, x, y, z){
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+};
+
 vec3.toVec4 = function(inout){
   inout[3] = 0;
 };
@@ -104,10 +110,16 @@ vec3.subtract = function(out, a, b){
   out[1] = a[1] - b[1];
   out[2] = a[2] - b[2];
 };
+vec3.negate = function(a){
+  a[0] = -a[0];
+  a[1] = -a[1];
+  a[2] = -a[2];
+};
+
 vec3.dot = function(a, b){
   return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 };
-vec3.cross = function(out, a, b){
+vec3.cross = function(out, a, b){    
   out[0] = a[1] * b[2] - b[1] * a[2];
   out[1] = a[2] * b[0] - b[2] * a[0];
   out[2] = a[0] * b[1] - b[0] * a[1];
@@ -135,6 +147,16 @@ vec3.distance = function(a, b){
 
   return Math.sqrt(x*x + y*y + z*z);
 };
+
+vec3.I = vec3.createFromArgs(1, 0, 0);
+vec3.J = vec3.createFromArgs(0, 1, 0);
+vec3.K = vec3.createFromArgs(0, 0, 1);
+
+vec3.RIGHT =   vec3.I;
+vec3.UP =      vec3.J;
+vec3.FORWARD = vec3.K;
+
+
 
 
 var vec4 = {};
@@ -210,7 +232,10 @@ vec4.distance = function(a, b){
   return Math.sqrt(x*x + y*y + z*z + w*w);
 };
 
-
+vec4.I = vec4.createFromArgs(1, 0, 0, 0);
+vec4.J = vec4.createFromArgs(0, 1, 0, 0);
+vec4.K = vec4.createFromArgs(0, 0, 1, 0);
+vec4.H = vec4.createFromArgs(0, 0, 0, 1);
 
 
 module.exports = {

@@ -3,10 +3,17 @@ var vec2 = vec.vec3;
 var vec3 = vec.vec3;
 var vec4 = vec.vec3;
 
+var mat2 = {};
+var mat3 = {};//Unimplemented
 var mat4 = {};
 
 mat4.create = function(){
-  return new Float32Array(16);
+  var m = new Float32Array(16);
+  m[0] = 1;
+  m[5] = 1;
+  m[10] = 1;
+  m[15] = 1;
+  return m;
 };
 mat4.createFromArray = function(arr){
   return new Float32Array(arr.slice(0, 16));
@@ -24,13 +31,23 @@ mat4.createFromArgs = function(
     m03, m13, m23, m33
   );
 };
-mat4.createFromVec4 = function(v1, v2, v3, v4){
+mat4.createFromVecs = function(v1, v2, v3, v4){
   return new Float32Array(
     v1[0], v1[1], v1[2], v1[3],
     v2[0], v2[1], v2[2], v2[3],
     v3[0], v3[1], v3[2], v3[3],
-    v4[0], v4[1], v4[2], v4[3],
+    v4[0], v4[1], v4[2], v4[3]
   );
+};
+
+mat4.assignFromArray = function(out, arr){
+  out.set(arr);
+};
+mat4.assignFromVecs = function(out, v1, v2, v3, v4){
+  out[0] = v1[0];  out[1] = v1[1];  out[2] = v1[2];  out[3] = v1[3];
+  out[4] = v2[0];  out[5] = v2[1];  out[6] = v2[2];  out[7] = v2[3];
+  out[8] = v3[0];  out[9] = v3[1];  out[10] = v3[2]; out[11] = v3[3];
+  out[12] = v4[0]; out[13] = v4[1]; out[14] = v4[2]; out[15] = v4[3];
 };
 
 mat4.multiply = function(out, a, b){
@@ -63,7 +80,6 @@ mat4.multiply = function(out, a, b){
   out[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
   out[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
   out[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
-  ];
 };
 mat4.inverse = function(out, a){
   var m00 = a[0 * 4 + 0];
@@ -130,8 +146,7 @@ mat4.inverse = function(out, a){
   out[13] = d * ((tmp20 * m32 + tmp12 * m02 + tmp19 * m22) - (tmp18 * m22 + tmp21 * m32 + tmp13 * m02));
   out[14] = d * ((tmp18 * m12 + tmp23 * m32 + tmp15 * m02) - (tmp22 * m32 + tmp14 * m02 + tmp19 * m12));
   out[15] = d * ((tmp22 * m22 + tmp16 * m02 + tmp21 * m12) - (tmp20 * m12 + tmp23 * m22 + tmp17 * m02));
-  ];
-}
+};
 
 mat4.translation = function(out, v){
   out[0]  = 1;    out[1]  = 0;    out[2]  = 0;    out[3]  = 0;
