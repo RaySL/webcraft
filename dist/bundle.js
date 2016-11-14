@@ -57,12 +57,11 @@
 	var mat4 = mat.mat4;
 	var vec3 = vec.vec3;
 
+	//TODO: choose a linter
 
 
 	var gl, program, canvas;
 	var meshverts, meshcolors;
-
-	var cameraPos = [0, 0, 15];
 
 	var vox = [
 	  1,1,1,1,1,
@@ -107,6 +106,7 @@
 
 	//Initialize shaders and draw surface
 	var setup = function(){
+	  //TODO: find a better voxel polygonization method (0fps.net)
 	  var v = faces(vox, vwidth, vheight, vdepth);
 	  var vo = [];
 	  for (var i = 0; i < v.length; i++){
@@ -114,6 +114,8 @@
 	    vo[i*3+1] = v[i][1];
 	    vo[i*3+2] = v[i][2];
 	  }
+
+	  //TODO: Textures?
 
 	  meshverts = new Float32Array(vo);
 	  meshcolors = new Uint8Array(meshverts);
@@ -126,7 +128,6 @@
 	  }
 
 	  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-	  //gl.viewport(0, 0, width, height);
 
 	  gl.enable(gl.CULL_FACE);
 	  gl.enable(gl.DEPTH_TEST);
@@ -211,7 +212,7 @@
 	  //var uniformLocation = gl.getUniformLocation(program, 'res');
 	  //gl.uniform2f(uniformLocation, width, height);
 
-	  cam.perspective(projMat, 1.2, canvas.width/canvas.height, 1, 1000)
+	  cam.perspective(projMat, 1.2, canvas.width/canvas.height, 1, 1000);
 
 	  vec3.assignFromArgs(camp, 15*Math.cos(time/600) + vwidth/2, vheight / 2, 15*Math.sin(time/600) + vdepth/2);
 	  vec3.assignFromArgs(objp, vwidth / 2, vheight / 2, vdepth / 2);
@@ -233,8 +234,8 @@
 	window.addEventListener('load', function(){
 	  canvas = document.createElement('canvas');
 
-	  canvas.width = 400;
-	  canvas.height = 400;
+	  canvas.width = 800;
+	  canvas.height = 640;
 
 	  document.body.appendChild(canvas);
 
@@ -259,28 +260,6 @@
 	  setup();
 	  window.requestAnimationFrame(display);
 	});
-
-	var step = 0.3;
-	window.addEventListener('keydown', function(event){
-	  if (event.keyCode == 39){
-	    cameraPos[0] += step;
-	  }
-	  if (event.keyCode == 37){
-	    cameraPos[0] -= step;
-	  }
-	  if (event.keyCode == 81){
-	    cameraPos[1] += step;
-	  }
-	  if (event.keyCode == 69){
-	    cameraPos[1] -= step;
-	  }
-	  if (event.keyCode == 40){
-	    cameraPos[2] += step;
-	  }
-	  if (event.keyCode == 38){
-	    cameraPos[2] -= step;
-	  }
-	})
 
 
 /***/ },
@@ -389,6 +368,15 @@
 	  return new Float32Array([x, y, 0, 0]);
 	};
 
+	vec2.assignFromArray = function(out, arr){
+	  out[0] = arr[0];
+	  out[1] = arr[1];
+	};
+	vec2.assignFromArgs = function(out, x, y){
+	  out[0] = x;
+	  out[1] = y;
+	};
+
 	vec2.toVec4 = function(inout){
 	  inout[3] = 0;
 	  inout[2] = 0;
@@ -441,6 +429,8 @@
 	  return Math.sqrt(x*x + y*y + z*z);
 	};
 
+	vec2.I = vec2.createFromArgs(1, 0);
+	vec2.J = vec2.createFromArgs(0, 1);
 
 
 	var vec3 = {};
@@ -455,6 +445,11 @@
 	  return new Float32Array([x, y, z, 0]);
 	};
 
+	vec3.assignFromArray = function(out, arr){
+	  out[0] = arr[0];
+	  out[1] = arr[1];
+	  out[2] = arr[2];
+	};
 	vec3.assignFromArgs = function(out, x, y, z){
 	  out[0] = x;
 	  out[1] = y;
@@ -498,7 +493,7 @@
 	vec3.dot = function(a, b){
 	  return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 	};
-	vec3.cross = function(out, a, b){    
+	vec3.cross = function(out, a, b){
 	  out[0] = a[1] * b[2] - b[1] * a[2];
 	  out[1] = a[2] * b[0] - b[2] * a[0];
 	  out[2] = a[0] * b[1] - b[0] * a[1];
@@ -536,8 +531,6 @@
 	vec3.FORWARD = vec3.K;
 
 
-
-
 	var vec4 = {};
 
 	vec4.create = function(){
@@ -548,6 +541,19 @@
 	};
 	vec4.createFromArgs = function(x, y, z, w){
 	  return new Float32Array([x, y, z, w]);
+	};
+
+	vec4.assignFromArray = function(out, arr){
+	  out[0] = arr[0];
+	  out[1] = arr[1];
+	  out[2] = arr[2];
+	  out[3] = arr[3];
+	};
+	vec4.assignFromArgs = function(out, x, y, z, w){
+	  out[0] = x;
+	  out[1] = y;
+	  out[2] = z;
+	  out[3] = w;
 	};
 
 	vec4.toVec3 = function(inout){
@@ -629,14 +635,17 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var vec = __webpack_require__(4);
-	var vec2 = vec.vec3;
+	var vec2 = vec.vec2;
 	var vec3 = vec.vec3;
-	var vec4 = vec.vec3;
+	var vec4 = vec.vec4;
 
-	var mat2 = {};
-	var mat3 = {};//Unimplemented
+	//TODO: Multiply vectors by matrices
+
+	var mat2 = {};//TODO: Implement mat2
+	var mat3 = {};//TODO: Implement mat3
 	var mat4 = {};
 
+	//TODO: consider a "zeros" method
 	mat4.create = function(){
 	  var m = new Float32Array(16);
 	  m[0] = 1;
@@ -670,8 +679,9 @@
 	  );
 	};
 
+	//TODO: assignFromArgs
 	mat4.assignFromArray = function(out, arr){
-	  out.set(arr);
+	  out.set(arr);//TODO: replace with direct assignment
 	};
 	mat4.assignFromVecs = function(out, v1, v2, v3, v4){
 	  out[0] = v1[0];  out[1] = v1[1];  out[2] = v1[2];  out[3] = v1[3];
@@ -838,7 +848,6 @@
 	var cam = {};
 
 
-
 	(function(mat4, vec3){
 
 	  var u = vec3.create();
@@ -862,10 +871,10 @@
 	    vec3.cross(v, w, u);
 
 	    mat4.assignFromArray(out, [
-	      u[0], u[1], u[2], 0,
-	      v[0], v[1], v[2], 0,
-	      w[0], w[1], w[2], 0,
-	      eye[0],    eye[1],    eye[2],    1
+	      u[0],   u[1],   u[2],   0,
+	      v[0],   v[1],   v[2],   0,
+	      w[0],   w[1],   w[2],   0,
+	      eye[0], eye[1], eye[2], 1
 	    ]);
 	  };
 	})(mat4, vec3);
@@ -895,7 +904,6 @@
 	    ]);
 	  };
 	})(mat4);
-
 
 
 	module.exports = cam;

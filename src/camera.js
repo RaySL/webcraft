@@ -9,7 +9,6 @@ var mat4 = mat.mat4;
 var cam = {};
 
 
-
 (function(mat4, vec3){
 
   var u = vec3.create();
@@ -33,10 +32,10 @@ var cam = {};
     vec3.cross(v, w, u);
 
     mat4.assignFromArray(out, [
-      u[0], u[1], u[2], 0,
-      v[0], v[1], v[2], 0,
-      w[0], w[1], w[2], 0,
-      eye[0],    eye[1],    eye[2],    1
+      u[0],   u[1],   u[2],   0,
+      v[0],   v[1],   v[2],   0,
+      w[0],   w[1],   w[2],   0,
+      eye[0], eye[1], eye[2], 1
     ]);
   };
 })(mat4, vec3);
@@ -66,7 +65,6 @@ var cam = {};
     ]);
   };
 })(mat4);
-
 
 
 module.exports = cam;

@@ -1,12 +1,15 @@
 var vec = require('./vector.js');
-var vec2 = vec.vec3;
+var vec2 = vec.vec2;
 var vec3 = vec.vec3;
-var vec4 = vec.vec3;
+var vec4 = vec.vec4;
 
-var mat2 = {};
-var mat3 = {};//Unimplemented
+//TODO: Multiply vectors by matrices
+
+var mat2 = {};//TODO: Implement mat2
+var mat3 = {};//TODO: Implement mat3
 var mat4 = {};
 
+//TODO: consider a "zeros" method
 mat4.create = function(){
   var m = new Float32Array(16);
   m[0] = 1;
@@ -40,8 +43,9 @@ mat4.createFromVecs = function(v1, v2, v3, v4){
   );
 };
 
+//TODO: assignFromArgs
 mat4.assignFromArray = function(out, arr){
-  out.set(arr);
+  out.set(arr);//TODO: replace with direct assignment
 };
 mat4.assignFromVecs = function(out, v1, v2, v3, v4){
   out[0] = v1[0];  out[1] = v1[1];  out[2] = v1[2];  out[3] = v1[3];

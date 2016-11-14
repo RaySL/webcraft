@@ -11,12 +11,11 @@ var cam = require('./camera.js');
 var mat4 = mat.mat4;
 var vec3 = vec.vec3;
 
+//TODO: choose a linter
 
 
 var gl, program, canvas;
 var meshverts, meshcolors;
-
-var cameraPos = [0, 0, 15];
 
 var vox = [
   1,1,1,1,1,
@@ -61,6 +60,7 @@ for (var i = 0; i < vwidth*vheight*vdepth; i++){
 
 //Initialize shaders and draw surface
 var setup = function(){
+  //TODO: find a better voxel polygonization method (0fps.net)
   var v = faces(vox, vwidth, vheight, vdepth);
   var vo = [];
   for (var i = 0; i < v.length; i++){
@@ -68,6 +68,8 @@ var setup = function(){
     vo[i*3+1] = v[i][1];
     vo[i*3+2] = v[i][2];
   }
+
+  //TODO: Textures?
 
   meshverts = new Float32Array(vo);
   meshcolors = new Uint8Array(meshverts);
@@ -80,7 +82,6 @@ var setup = function(){
   }
 
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-  //gl.viewport(0, 0, width, height);
 
   gl.enable(gl.CULL_FACE);
   gl.enable(gl.DEPTH_TEST);
@@ -165,7 +166,7 @@ var display = function(time){
   //var uniformLocation = gl.getUniformLocation(program, 'res');
   //gl.uniform2f(uniformLocation, width, height);
 
-  cam.perspective(projMat, 1.2, canvas.width/canvas.height, 1, 1000)
+  cam.perspective(projMat, 1.2, canvas.width/canvas.height, 1, 1000);
 
   vec3.assignFromArgs(camp, 15*Math.cos(time/600) + vwidth/2, vheight / 2, 15*Math.sin(time/600) + vdepth/2);
   vec3.assignFromArgs(objp, vwidth / 2, vheight / 2, vdepth / 2);
@@ -187,8 +188,8 @@ var display = function(time){
 window.addEventListener('load', function(){
   canvas = document.createElement('canvas');
 
-  canvas.width = 400;
-  canvas.height = 400;
+  canvas.width = 800;
+  canvas.height = 640;
 
   document.body.appendChild(canvas);
 
@@ -213,25 +214,3 @@ window.addEventListener('load', function(){
   setup();
   window.requestAnimationFrame(display);
 });
-
-var step = 0.3;
-window.addEventListener('keydown', function(event){
-  if (event.keyCode == 39){
-    cameraPos[0] += step;
-  }
-  if (event.keyCode == 37){
-    cameraPos[0] -= step;
-  }
-  if (event.keyCode == 81){
-    cameraPos[1] += step;
-  }
-  if (event.keyCode == 69){
-    cameraPos[1] -= step;
-  }
-  if (event.keyCode == 40){
-    cameraPos[2] += step;
-  }
-  if (event.keyCode == 38){
-    cameraPos[2] -= step;
-  }
-})

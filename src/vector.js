@@ -10,6 +10,15 @@ vec2.createFromArgs = function(x, y){
   return new Float32Array([x, y, 0, 0]);
 };
 
+vec2.assignFromArray = function(out, arr){
+  out[0] = arr[0];
+  out[1] = arr[1];
+};
+vec2.assignFromArgs = function(out, x, y){
+  out[0] = x;
+  out[1] = y;
+};
+
 vec2.toVec4 = function(inout){
   inout[3] = 0;
   inout[2] = 0;
@@ -62,6 +71,8 @@ vec2.distance = function(a, b){
   return Math.sqrt(x*x + y*y + z*z);
 };
 
+vec2.I = vec2.createFromArgs(1, 0);
+vec2.J = vec2.createFromArgs(0, 1);
 
 
 var vec3 = {};
@@ -76,6 +87,11 @@ vec3.createFromArgs = function(x, y, z){
   return new Float32Array([x, y, z, 0]);
 };
 
+vec3.assignFromArray = function(out, arr){
+  out[0] = arr[0];
+  out[1] = arr[1];
+  out[2] = arr[2];
+};
 vec3.assignFromArgs = function(out, x, y, z){
   out[0] = x;
   out[1] = y;
@@ -119,7 +135,7 @@ vec3.negate = function(a){
 vec3.dot = function(a, b){
   return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 };
-vec3.cross = function(out, a, b){    
+vec3.cross = function(out, a, b){
   out[0] = a[1] * b[2] - b[1] * a[2];
   out[1] = a[2] * b[0] - b[2] * a[0];
   out[2] = a[0] * b[1] - b[0] * a[1];
@@ -157,8 +173,6 @@ vec3.UP =      vec3.J;
 vec3.FORWARD = vec3.K;
 
 
-
-
 var vec4 = {};
 
 vec4.create = function(){
@@ -169,6 +183,19 @@ vec4.createFromArray = function(arr){
 };
 vec4.createFromArgs = function(x, y, z, w){
   return new Float32Array([x, y, z, w]);
+};
+
+vec4.assignFromArray = function(out, arr){
+  out[0] = arr[0];
+  out[1] = arr[1];
+  out[2] = arr[2];
+  out[3] = arr[3];
+};
+vec4.assignFromArgs = function(out, x, y, z, w){
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  out[3] = w;
 };
 
 vec4.toVec3 = function(inout){
