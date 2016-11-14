@@ -1,7 +1,6 @@
 var fragSrc = require('./shaders/frag.glsl');
 var vertSrc = require('./shaders/vert.glsl');
 
-//var marchingcubes = require('./marchingcubes.js');
 var faces = require('./voxelpoly.js');
 
 var vec = require('./vector.js');
@@ -17,49 +16,20 @@ var vec3 = vec.vec3;
 var gl, program, canvas;
 var meshverts, meshcolors;
 
-var vox = [
-  1,1,1,1,1,
-  1,0,1,0,1,
-  1,1,1,1,1,
-  1,0,1,0,1,
-  1,1,1,1,1,
-
-  1,0,1,0,1,
-  0,0,0,0,0,
-  1,0,1,0,1,
-  0,0,0,0,0,
-  1,0,1,0,1,
-
-  1,1,1,1,1,
-  1,0,1,0,1,
-  1,1,1,1,1,
-  1,0,1,0,1,
-  1,1,1,1,1,
-
-  1,0,1,0,1,
-  0,0,0,0,0,
-  1,0,1,0,1,
-  0,0,0,0,0,
-  1,0,1,0,1,
-
-  1,1,1,1,1,
-  1,0,1,0,1,
-  1,1,1,1,1,
-  1,0,1,0,1,
-  1,1,1,1,1
-];
+var vox = [];
 
 var vwidth = 10;
 var vheight = 10;
 var vdepth = 10;
 
-for (var i = 0; i < vwidth*vheight*vdepth; i++){
-  vox[i] = Math.random()*1.4|0;
-}
-
 
 //Initialize shaders and draw surface
 var setup = function(){
+  //Generate voxel values
+  for (var i = 0; i < vwidth*vheight*vdepth; i++){
+    vox[i] = Math.random()*1.4|0;
+  }
+
   //TODO: find a better voxel polygonization method (0fps.net)
   var v = faces(vox, vwidth, vheight, vdepth);
   var vo = [];
