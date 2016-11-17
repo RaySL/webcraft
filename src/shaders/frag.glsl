@@ -8,10 +8,6 @@ frag.glsl
   precision mediump float;
 #endif
 
-
-uniform float time;
-uniform vec2 res;
-
 varying vec4 v_color;
 
 void main(void){

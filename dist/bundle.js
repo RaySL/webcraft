@@ -47,54 +47,42 @@
 	var fragSrc = __webpack_require__(3);
 	var vertSrc = __webpack_require__(4);
 
-	var faces = __webpack_require__(6);
+	var chunk = __webpack_require__(7);
+
+	var attrib = __webpack_require__(5);
+
 	var vec = __webpack_require__(2);
 	var mat = __webpack_require__(1);
-	var cam = __webpack_require__(5);
+	var cam = __webpack_require__(6);
 
 	var mat4 = mat.mat4;
 	var vec3 = vec.vec3;
 
-	//TODO: choose a linter
-
 
 	var gl, program, canvas;
-	var meshverts, meshcolors;
+	var colors, blocks;
 
-	var vox = [];
-
-	var vwidth = 10;
-	var vheight = 10;
-	var vdepth = 10;
+	var voxels = chunk.create();
 
 
 	//Initialize shaders and draw surface
 	var setup = function(){
 	  //Generate voxel values
-	  for (var i = 0; i < vwidth*vheight*vdepth; i++){
-	    vox[i] = Math.random()*1.4|0;
+	  for (var i = 0; i < voxels.length; i++){
+	    voxels[i] = Math.random()*1.4|0;
 	  }
 
 	  //TODO: find a better voxel polygonization method (0fps.net)
-	  var v = faces(vox, vwidth, vheight, vdepth);
-	  var vo = [];
-	  for (i = 0; i < v.length; i++){
-	    vo[i*3+0] = v[i][0];
-	    vo[i*3+1] = v[i][1];
-	    vo[i*3+2] = v[i][2];
+	  blocks = chunk.cullMesh(voxels);
+	  colors = new Uint8Array(blocks.length);
+
+	  for (i = 0; i < colors.length; i+=3){
+	      var r = Math.sin(blocks[i]) + Math.sin(blocks[i+1]) + Math.sin(blocks[i+2]);
+	      colors[i+0] = r * 107;
+	      colors[i+1] = r * 103;
+	      colors[i+2] = r * 101;
 	  }
 
-	  //TODO: Textures?
-
-	  meshverts = new Float32Array(vo);
-	  meshcolors = new Uint8Array(meshverts);
-
-	  for (i = 0; i < meshcolors.length; i+=3){
-	      var m = Math.sin(0.8*(meshverts[i] + meshverts[i+1] + meshverts[i+2]));
-	      meshcolors[i+0] = (Math.sin(meshverts[i+0] + 2.094)*m*4 + 4) << 5;
-	      meshcolors[i+1] = (Math.sin(meshverts[i+1] + 0.000)*m*4 + 4) << 5;
-	      meshcolors[i+2] = (Math.sin(meshverts[i+2] + 4.189)*m*4 + 4) << 5;
-	  }
 
 	  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
@@ -137,26 +125,13 @@
 	      return;
 	  }
 
+	  //Init colors
+	  attrib.create(gl, gl.STATIC_DRAW, colors);
+	  attrib.enable(gl, program, gl.UNSIGNED_BYTE, 'a_color', true);
 
-	  //Load colors
-	  var colorBuffer = gl.createBuffer();
-	  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-	  gl.bufferData(gl.ARRAY_BUFFER, meshcolors, gl.STATIC_DRAW);
-
-	  //Enable Color attribute
-	  var colorLocation = gl.getAttribLocation(program, 'a_color');
-	  gl.enableVertexAttribArray(colorLocation);
-	  gl.vertexAttribPointer(colorLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
-
-	  //Load vertices
-	  var buffer = gl.createBuffer();
-	  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-	  gl.bufferData(gl.ARRAY_BUFFER, meshverts, gl.STATIC_DRAW);
-
-	  //Enable Vertex attribute
-	  var positionLocation = gl.getAttribLocation(program, 'a_position');
-	  gl.enableVertexAttribArray(positionLocation);
-	  gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+	  //Init vertices
+	  attrib.create(gl, gl.STATIC_DRAW, blocks);
+	  attrib.enable(gl, program, gl.FLOAT, 'a_position', false);
 	};
 
 	var camp = vec3.create();
@@ -173,17 +148,18 @@
 	  gl.clearColor(0.2,0.0,0.05,1.0);
 	  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-	  //Update uniform values
-	  //var uniformLocation = gl.getUniformLocation(program, 'time');
-	  //gl.uniform1f(uniformLocation, time/1000);
-
-	  //var uniformLocation = gl.getUniformLocation(program, 'res');
-	  //gl.uniform2f(uniformLocation, width, height);
+	  //Update uniform values here if necessary
 
 	  cam.perspective(projMat, 1.2, canvas.width/canvas.height, 1, 1000);
 
-	  vec3.assignFromArgs(camp, 15*Math.cos(time/600) + vwidth/2, vheight / 2, 15*Math.sin(time/600) + vdepth/2);
-	  vec3.assignFromArgs(objp, vwidth / 2, vheight / 2, vdepth / 2);
+	  vec3.assignFromArgs(camp, 15*Math.cos(time/600) + chunk.CHUNK_WIDTH/2,
+	                            chunk.CHUNK_HEIGHT / 2,
+	                            15*Math.sin(time/600) + chunk.CHUNK_DEPTH/2);
+
+	  vec3.assignFromArgs(objp, chunk.CHUNK_WIDTH / 2,
+	                            chunk.CHUNK_HEIGHT / 2,
+	                            chunk.CHUNK_DEPTH / 2);
+
 	  cam.lookAt(cameraMat, camp, objp);
 
 	  mat4.inverse(viewMat, cameraMat);
@@ -192,7 +168,7 @@
 	  var matrixLocation = gl.getUniformLocation(program, "u_matrix");
 	  gl.uniformMatrix4fv(matrixLocation, 0, viewProjMat);
 
-	  gl.drawArrays(gl.TRIANGLES, 0, meshverts.length / 3);
+	  gl.drawArrays(gl.TRIANGLES, 0, blocks.length / 3);
 
 	  window.requestAnimationFrame(display);
 	};
@@ -711,7 +687,7 @@
 /* 3 */
 /***/ function(module, exports) {
 
-	module.exports = "/*\nfrag.glsl\n*/\n\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n  precision highp float;\n#else\n  precision mediump float;\n#define GLSLIFY 1\n#endif\n\n\nuniform float time;\nuniform vec2 res;\n\nvarying vec4 v_color;\n\nvoid main(void){\n  gl_FragColor = v_color;\n}\n"
+	module.exports = "/*\nfrag.glsl\n*/\n\n#ifdef GL_FRAGMENT_PRECISION_HIGH\n  precision highp float;\n#else\n  precision mediump float;\n#define GLSLIFY 1\n#endif\n\nvarying vec4 v_color;\n\nvoid main(void){\n  gl_FragColor = v_color;\n}\n"
 
 /***/ },
 /* 4 */
@@ -721,6 +697,27 @@
 
 /***/ },
 /* 5 */
+/***/ function(module, exports) {
+
+	var attrib = {};
+
+	attrib.create = function(gl, type, data){
+	  var buffer = gl.createBuffer();
+	  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+	  gl.bufferData(gl.ARRAY_BUFFER, data, type);
+	};
+
+	attrib.enable = function(gl, program, type, name, normalize){
+	  var positionLocation = gl.getAttribLocation(program, name);
+	  gl.enableVertexAttribArray(positionLocation);
+	  gl.vertexAttribPointer(positionLocation, 3, type, normalize, 0, 0);
+	};
+
+	module.exports = attrib;
+
+
+/***/ },
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var vec = __webpack_require__(2);
@@ -796,84 +793,121 @@
 
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports) {
 
-	//TODO: Implement with Float32Array
-	//TODO: Consider hashing functions
+	//var mesh = require('./mesh.js');
 
-	function faces(values, width, height, depth){
-	  var vc = 0;
-	  var verts = [];
+	var chunk = {};
 
-	  /*jshint -W041 */
+	var CHUNK_WIDTH = 10;
+	var CHUNK_HEIGHT = 10;
+	var CHUNK_DEPTH = 10;
 
-	  for (var x = 0; x < width; x++)
-	  for (var y = 0; y < height; y++)
-	  for (var z = 0; z < depth; z++) {
-	    if (values[x + y*width + z*width*height]){
-	      if (x == 0 || values[x-1 + y*width + z*width*height] == 0){
-	        verts[vc++] = [ x,   y,   z   ];
-	        verts[vc++] = [ x,   y,   z+1 ];
-	        verts[vc++] = [ x,   y+1, z   ];
-	        verts[vc++] = [ x,   y+1, z+1 ];
-	        verts[vc++] = [ x,   y+1, z   ];
-	        verts[vc++] = [ x,   y,   z+1 ];
-	      }
+	chunk.CHUNK_WIDTH = CHUNK_WIDTH;
+	chunk.CHUNK_HEIGHT = CHUNK_HEIGHT;
+	chunk.CHUNK_DEPTH = CHUNK_DEPTH;
 
-	      if (y == 0 || values[x + (y-1)*width + z*width*height] == 0){
-	        verts[vc++] = [ x,   y,   z   ];
-	        verts[vc++] = [ x+1, y,   z   ];
-	        verts[vc++] = [ x,   y,   z+1 ];
-	        verts[vc++] = [ x+1, y,   z+1 ];
-	        verts[vc++] = [ x,   y,   z+1 ];
-	        verts[vc++] = [ x+1, y,   z   ];
-	      }
+	chunk.create = function(){
+	  return new Float32Array(CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH);
+	};
 
-	      if (z == 0 || values[x + y*width + (z-1)*width*height] == 0){
-	        verts[vc++] = [ x,   y,   z   ];
-	        verts[vc++] = [ x,   y+1, z   ];
-	        verts[vc++] = [ x+1, y,   z   ];
-	        verts[vc++] = [ x+1, y+1, z   ];
-	        verts[vc++] = [ x+1, y,   z   ];
-	        verts[vc++] = [ x,   y+1, z   ];
-	      }
+	chunk.indexByArgs = function(c, x, y, z){
+	  return c[x + CHUNK_WIDTH * (y + CHUNK_HEIGHT * z)];
+	};
+	chunk.indexByVec = function(c, v){
+	  return c[v[0] + CHUNK_WIDTH * (v[1] + CHUNK_HEIGHT * v[2])];
+	};
 
-	      if (x == width-1 || values[x+1 + y*width + z*width*height] == 0){
-	        verts[vc++] = [ x+1, y,   z   ];
-	        verts[vc++] = [ x+1, y+1, z   ];
-	        verts[vc++] = [ x+1, y,   z+1 ];
-	        verts[vc++] = [ x+1, y+1, z+1 ];
-	        verts[vc++] = [ x+1, y,   z+1 ];
-	        verts[vc++] = [ x+1, y+1, z   ];
-	      }
+	/**
+	  Warning: chunk.cullMesh is only a proof of concept, and is extremely unoptimized!
+	**/
 
-	      if (y == height-1 || values[x + (y+1)*width + z*width*height] == 0){
-	        verts[vc++] = [ x,   y+1, z   ];
-	        verts[vc++] = [ x,   y+1, z+1 ];
-	        verts[vc++] = [ x+1, y+1, z   ];
-	        verts[vc++] = [ x+1, y+1, z+1 ];
-	        verts[vc++] = [ x+1, y+1, z   ];
-	        verts[vc++] = [ x,   y+1, z+1 ];
-	      }
+	(function(){
 
-	      if (z == depth-1 || values[x + y*width + (z+1)*width*height] == 0){
-	        verts[vc++] = [ x,   y,   z+1 ];
-	        verts[vc++] = [ x+1, y,   z+1 ];
-	        verts[vc++] = [ x,   y+1, z+1 ];
-	        verts[vc++] = [ x+1, y+1, z+1 ];
-	        verts[vc++] = [ x,   y+1, z+1 ];
-	        verts[vc++] = [ x+1, y,   z+1 ];
+	  var maxfaces = CHUNK_WIDTH * CHUNK_HEIGHT * (CHUNK_DEPTH+1) +
+	                  CHUNK_WIDTH * (CHUNK_HEIGHT+1) * CHUNK_DEPTH +
+	                  (CHUNK_WIDTH+1) * CHUNK_HEIGHT * CHUNK_DEPTH;
+
+	  var verts = new Float32Array(maxfaces * 6 * 3);
+
+	  chunk.cullMesh = function(c){
+	    var vc = 0;
+	    verts.fill(0);
+
+	    for (var x = 0; x < CHUNK_WIDTH; x++)
+	    for (var y = 0; y < CHUNK_HEIGHT; y++)
+	    for (var z = 0; z < CHUNK_DEPTH; z++) {
+	      if (c[x + y*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT]){
+	        if (x == 0 || c[x-1 + y*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+	          verts.set([ x,   y,   z,
+	                      x,   y,   z+1,
+	                      x,   y+1, z,
+	                      x,   y+1, z+1,
+	                      x,   y+1, z,
+	                      x,   y,   z+1], vc);
+	          vc += 18;
+	        }
+
+	        if (y == 0 || c[x + (y-1)*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+	          verts.set([ x,   y,   z,
+	                      x+1, y,   z,
+	                      x,   y,   z+1,
+	                      x+1, y,   z+1,
+	                      x,   y,   z+1,
+	                      x+1, y,   z], vc);
+	          vc += 18;
+	        }
+
+	        if (z == 0 || c[x + y*CHUNK_WIDTH + (z-1)*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+	          verts.set([ x,   y,   z,
+	                      x,   y+1, z,
+	                      x+1, y,   z,
+	                      x+1, y+1, z,
+	                      x+1, y,   z,
+	                      x,   y+1, z], vc);
+	          vc += 18;
+	        }
+
+	        if (x == CHUNK_WIDTH-1 || c[x+1 + y*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+	          verts.set([ x+1, y,   z,
+	                      x+1, y+1, z,
+	                      x+1, y,   z+1,
+	                      x+1, y+1, z+1,
+	                      x+1, y,   z+1,
+	                      x+1, y+1, z], vc);
+	          vc += 18;
+	        }
+
+	        if (y == CHUNK_HEIGHT-1 || c[x + (y+1)*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+	          verts.set([ x,   y+1, z,
+	                      x,   y+1, z+1,
+	                      x+1, y+1, z,
+	                      x+1, y+1, z+1,
+	                      x+1, y+1, z,
+	                      x,   y+1, z+1], vc);
+	          vc += 18;
+	        }
+
+	        if (z == CHUNK_DEPTH-1 || c[x + y*CHUNK_WIDTH + (z+1)*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+	          verts.set([ x,   y,   z+1,
+	                      x+1, y,   z+1,
+	                      x,   y+1, z+1,
+	                      x+1, y+1, z+1,
+	                      x,   y+1, z+1,
+	                      x+1, y,   z+1], vc);
+	          vc += 18;
+	        }
 	      }
 	    }
-	  }
 
-	  /*jshint +W041 */
+	    return verts.slice(0, vc);
+	  };
 
-	  return verts;
-	}
+	})();
 
-	module.exports = faces;
+
+	module.exports = chunk;
 
 
 /***/ }
