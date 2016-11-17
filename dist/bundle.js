@@ -50,6 +50,7 @@
 	var chunk = __webpack_require__(7);
 
 	var attrib = __webpack_require__(5);
+	var shader = __webpack_require__(8);
 
 	var vec = __webpack_require__(2);
 	var mat = __webpack_require__(1);
@@ -90,40 +91,45 @@
 	  gl.enable(gl.DEPTH_TEST);
 	  gl.depthFunc(gl.LEQUAL);
 
+	  var frag = shader.create(gl, fragSrc, gl.FRAGMENT_SHADER);
+	  var vert = shader.create(gl, vertSrc, gl.VERTEX_SHADER);
+
+	  program = shader.program(gl, frag, vert);
+
 	  //Create shaders
-	  var fragment = gl.createShader(gl.FRAGMENT_SHADER);
-	  var vertex = gl.createShader(gl.VERTEX_SHADER);
+	  //var fragment = gl.createShader(gl.FRAGMENT_SHADER);
+	  //var vertex = gl.createShader(gl.VERTEX_SHADER);
 
 	  //load the source code
-	  gl.shaderSource(fragment, fragSrc);
-	  gl.shaderSource(vertex, vertSrc);
+	  //gl.shaderSource(fragment, fragSrc);
+	  //gl.shaderSource(vertex, vertSrc);
 
 
 	  //Compile 'em!
-	  gl.compileShader(vertex);
-	  if(!gl.getShaderParameter(vertex, gl.COMPILE_STATUS)) {
-	      console.log('Vertex error:\\n' + gl.getShaderInfoLog(vertex));
-	      return;
-	  }
+	  //gl.compileShader(vertex);
+	  //if(!gl.getShaderParameter(vertex, gl.COMPILE_STATUS)) {
+	  //    console.log('Vertex error:\\n' + gl.getShaderInfoLog(vertex));
+	  //    return;
+	  //}
 
-	  gl.compileShader(fragment);
-	  if(!gl.getShaderParameter(fragment, gl.COMPILE_STATUS)) {
-	      console.log('Fragment error:\\n' + gl.getShaderInfoLog(fragment));
-	      return;
-	  }
+	  //gl.compileShader(fragment);
+	  //if(!gl.getShaderParameter(fragment, gl.COMPILE_STATUS)) {
+	  //    console.log('Fragment error:\\n' + gl.getShaderInfoLog(fragment));
+	  //    return;
+	  //}
 
 	  //Link the shaders into a program
-	  program = gl.createProgram();
-	  gl.attachShader(program, vertex);
-	  gl.attachShader(program, fragment);
-	  gl.linkProgram(program);
-	  gl.useProgram(program);
+	  //program = gl.createProgram();
+	  //gl.attachShader(program, vertex);
+	  //gl.attachShader(program, fragment);
+	  //gl.linkProgram(program);
+	  //gl.useProgram(program);
 
 	  //Check for errors
-	  if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-	      console.log('Linking Error:\\n' + gl.getProgramInfoLog(program));
-	      return;
-	  }
+	  //if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+	  //    console.log('Linking Error:\\n' + gl.getProgramInfoLog(program));
+	  //    return;
+	  //}
 
 	  //Init colors
 	  attrib.create(gl, gl.STATIC_DRAW, colors);
@@ -908,6 +914,47 @@
 
 
 	module.exports = chunk;
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	var shader = {};
+
+	shader.create = function(gl, source, type){
+	  var s = gl.createShader(type);
+
+	  gl.shaderSource(s, source);
+	  gl.compileShader(s);
+
+	  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+	      console.log('Shader compilation error:\\n' + gl.getShaderInfoLog(s));
+	      return false;
+	  }
+
+	  return s;
+	};
+	shader.program = function(gl){
+	  //Link the shaders into a program
+	  var program = gl.createProgram();
+	  for (var i = 1; i < arguments.length; i++){
+	    gl.attachShader(program, arguments[i]);
+	  }
+	  gl.linkProgram(program);
+	  gl.useProgram(program);
+
+	  //Check for errors
+	  if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+	      console.log('Program linking Error:\\n' + gl.getProgramInfoLog(program));
+	      return false;
+	  }
+
+	  return program;
+	}
+
+
+	module.exports = shader;
 
 
 /***/ }

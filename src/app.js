@@ -4,6 +4,7 @@ var vertSrc = require('./shaders/vert.glsl');
 var chunk = require('./chunk.js');
 
 var attrib = require('./attrib.js');
+var shader = require('./shader.js');
 
 var vec = require('./vector.js');
 var mat = require('./matrix.js');
@@ -45,39 +46,11 @@ var setup = function(){
   gl.depthFunc(gl.LEQUAL);
 
   //Create shaders
-  var fragment = gl.createShader(gl.FRAGMENT_SHADER);
-  var vertex = gl.createShader(gl.VERTEX_SHADER);
+  var frag = shader.create(gl, fragSrc, gl.FRAGMENT_SHADER);
+  var vert = shader.create(gl, vertSrc, gl.VERTEX_SHADER);
 
-  //load the source code
-  gl.shaderSource(fragment, fragSrc);
-  gl.shaderSource(vertex, vertSrc);
-
-
-  //Compile 'em!
-  gl.compileShader(vertex);
-  if(!gl.getShaderParameter(vertex, gl.COMPILE_STATUS)) {
-      console.log('Vertex error:\\n' + gl.getShaderInfoLog(vertex));
-      return;
-  }
-
-  gl.compileShader(fragment);
-  if(!gl.getShaderParameter(fragment, gl.COMPILE_STATUS)) {
-      console.log('Fragment error:\\n' + gl.getShaderInfoLog(fragment));
-      return;
-  }
-
-  //Link the shaders into a program
-  program = gl.createProgram();
-  gl.attachShader(program, vertex);
-  gl.attachShader(program, fragment);
-  gl.linkProgram(program);
-  gl.useProgram(program);
-
-  //Check for errors
-  if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.log('Linking Error:\\n' + gl.getProgramInfoLog(program));
-      return;
-  }
+  //Create program
+  program = shader.program(gl, frag, vert);
 
   //Init colors
   attrib.create(gl, gl.STATIC_DRAW, colors);
