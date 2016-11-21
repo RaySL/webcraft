@@ -10,8 +10,13 @@ chunk.CHUNK_WIDTH = CHUNK_WIDTH;
 chunk.CHUNK_HEIGHT = CHUNK_HEIGHT;
 chunk.CHUNK_DEPTH = CHUNK_DEPTH;
 
+
+
+
+
+
 chunk.create = function(){
-  return new Float32Array(CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH);
+  return new Uint8Array(CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH);
 };
 
 chunk.indexByArgs = function(c, x, y, z){
