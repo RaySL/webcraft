@@ -13,6 +13,7 @@ shader.create = function(gl, source, type){
 
   return s;
 };
+
 shader.program = function(gl){
   //Link the shaders into a program
   var program = gl.createProgram();
@@ -29,7 +30,7 @@ shader.program = function(gl){
   }
 
   return program;
-}
+};
 
 
 module.exports = shader;

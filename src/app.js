@@ -25,7 +25,7 @@ var voxels = chunk.create();
 var setup = function(){
   //Generate voxel values
   for (var i = 0; i < voxels.length; i++){
-    voxels[i] = (0.2 + Math.random())|0;
+    voxels[i] = (0.2 + Math.random()) | 0;
   }
 
   //TODO: find a better voxel polygonization method (0fps.net)
@@ -64,7 +64,7 @@ var setup = function(){
   attrib.enable(gl, program, gl.FLOAT, 'a_position', false);
 };
 
-var camp = vec4.create();
+var camp = vec3.create();
 var objp = vec3.create();
 var camt = mat4.create();
 
