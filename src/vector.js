@@ -73,6 +73,12 @@ vec2.distance = function(a, b){
   return Math.sqrt(x*x + y*y);
 };
 
+vec2.matrixMultiply = function(out, a, mat){
+  var a0 = a[0], a1 = a[1];
+  out[0] = a0*mat[0+0*4] + a1*mat[1+0*4];
+  out[1] = a0*mat[0+1*4] + a1*mat[1+1*4];
+};
+
 vec2.I = vec2.createFromArgs(1, 0);
 vec2.J = vec2.createFromArgs(0, 1);
 
@@ -138,9 +144,12 @@ vec3.dot = function(a, b){
   return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 };
 vec3.cross = function(out, a, b){
-  out[0] = a[1] * b[2] - b[1] * a[2];
-  out[1] = a[2] * b[0] - b[2] * a[0];
-  out[2] = a[0] * b[1] - b[0] * a[1];
+  var a0 = a[0], a1 = a[1], a2 = a[2],
+      b0 = b[0], b1 = b[1], b2 = b[2];
+
+  out[0] = a1 * b2 - b1 * a2;
+  out[1] = a2 * b0 - b2 * a0;
+  out[2] = a0 * b1 - b0 * a1;
 };
 vec3.magnitude2 = function(a){
   var x = a[0], y = a[1], z = a[2];
@@ -165,6 +174,14 @@ vec3.distance = function(a, b){
 
   return Math.sqrt(x*x + y*y + z*z);
 };
+
+vec3.matrixMultiply = function(out, a, mat){
+  var a0 = a[0], a1 = a[1], a2 = a[2];
+  out[0] = a0*mat[0+0*4] + a1*mat[1+0*4] + a2*mat[2+0*4];
+  out[1] = a0*mat[0+1*4] + a1*mat[1+1*4] + a2*mat[2+1*4];
+  out[2] = a0*mat[0+2*4] + a1*mat[1+2*4] + a2*mat[2+2*4];
+};
+
 
 vec3.I = vec3.createFromArgs(1, 0, 0);
 vec3.J = vec3.createFromArgs(0, 1, 0);
@@ -259,6 +276,14 @@ vec4.distance = function(a, b){
       w = a[3] - b[3];
 
   return Math.sqrt(x*x + y*y + z*z + w*w);
+};
+
+vec4.matrixMultiply = function(out, a, mat){
+  var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3];
+  out[0] = a0*mat[0+0*4] + a1*mat[1+0*4] + a2*mat[2+0*4] + a3*mat[3+0*4];
+  out[1] = a0*mat[0+1*4] + a1*mat[1+1*4] + a2*mat[2+1*4] + a3*mat[3+1*4];
+  out[2] = a0*mat[0+2*4] + a1*mat[1+2*4] + a2*mat[2+2*4] + a3*mat[3+2*4];
+  out[3] = a0*mat[0+3*4] + a1*mat[1+3*4] + a2*mat[2+3*4] + a3*mat[3+3*4];
 };
 
 vec4.I = vec4.createFromArgs(1, 0, 0, 0);

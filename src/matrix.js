@@ -148,11 +148,17 @@ mat4.inverse = function(out, a){
 };
 
 mat4.translation = function(out, v){
+  out[0]  = 1; out[1]  = 0; out[2]  = 0; out[3]  = v[0];
+  out[4]  = 0; out[5]  = 1; out[6]  = 0; out[7]  = v[1];
+  out[8]  = 0; out[9]  = 0; out[10] = 1; out[11] = v[2];
+  out[12] = 0; out[13] = 0; out[14] = 0; out[15] = 1;
+};
+/*mat4.translation = function(out, v){
   out[0]  = 1;    out[1]  = 0;    out[2]  = 0;    out[3]  = 0;
   out[4]  = 0;    out[5]  = 1;    out[6]  = 0;    out[7]  = 0;
   out[8]  = 0;    out[9]  = 0;    out[10] = 1;    out[11] = 0;
   out[12] = v[0]; out[13] = v[1]; out[14] = v[2]; out[15] = 1;
-};
+};*/
 
 mat4.rotateX = function(out, ang){
   var c = Math.cos(ang), s = Math.sin(ang);
