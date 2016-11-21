@@ -58,6 +58,7 @@
 
 	var mat4 = mat.mat4;
 	var vec3 = vec.vec3;
+	var vec4 = vec.vec4;
 
 
 	var gl, program, canvas;
@@ -70,7 +71,7 @@
 	var setup = function(){
 	  //Generate voxel values
 	  for (var i = 0; i < voxels.length; i++){
-	    voxels[i] = Math.random()*1.4|0;
+	    voxels[i] = (0.2 + Math.random())|0;
 	  }
 
 	  //TODO: find a better voxel polygonization method (0fps.net)
@@ -78,58 +79,27 @@
 	  colors = new Uint8Array(blocks.length);
 
 	  for (i = 0; i < colors.length; i+=3){
-	      var r = Math.sin(blocks[i]) + Math.sin(blocks[i+1]) + Math.sin(blocks[i+2]);
-	      colors[i+0] = r * 107;
-	      colors[i+1] = r * 103;
-	      colors[i+2] = r * 101;
+	      colors[i+0] = Math.sin(blocks[i]*0.2) * 127;
+	      colors[i+1] = Math.sin(blocks[i+1]*0.2) * 127;
+	      colors[i+2] = Math.sin(blocks[i+2]*0.2) * 127;
 	  }
 
-
+	  //Set the viewport
 	  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
+	  //Enable face culling
 	  gl.enable(gl.CULL_FACE);
+
+	  //Enable depth testing
 	  gl.enable(gl.DEPTH_TEST);
 	  gl.depthFunc(gl.LEQUAL);
 
+	  //Create shaders
 	  var frag = shader.create(gl, fragSrc, gl.FRAGMENT_SHADER);
 	  var vert = shader.create(gl, vertSrc, gl.VERTEX_SHADER);
 
+	  //Create program
 	  program = shader.program(gl, frag, vert);
-
-	  //Create shaders
-	  //var fragment = gl.createShader(gl.FRAGMENT_SHADER);
-	  //var vertex = gl.createShader(gl.VERTEX_SHADER);
-
-	  //load the source code
-	  //gl.shaderSource(fragment, fragSrc);
-	  //gl.shaderSource(vertex, vertSrc);
-
-
-	  //Compile 'em!
-	  //gl.compileShader(vertex);
-	  //if(!gl.getShaderParameter(vertex, gl.COMPILE_STATUS)) {
-	  //    console.log('Vertex error:\\n' + gl.getShaderInfoLog(vertex));
-	  //    return;
-	  //}
-
-	  //gl.compileShader(fragment);
-	  //if(!gl.getShaderParameter(fragment, gl.COMPILE_STATUS)) {
-	  //    console.log('Fragment error:\\n' + gl.getShaderInfoLog(fragment));
-	  //    return;
-	  //}
-
-	  //Link the shaders into a program
-	  //program = gl.createProgram();
-	  //gl.attachShader(program, vertex);
-	  //gl.attachShader(program, fragment);
-	  //gl.linkProgram(program);
-	  //gl.useProgram(program);
-
-	  //Check for errors
-	  //if(!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-	  //    console.log('Linking Error:\\n' + gl.getProgramInfoLog(program));
-	  //    return;
-	  //}
 
 	  //Init colors
 	  attrib.create(gl, gl.STATIC_DRAW, colors);
@@ -140,8 +110,9 @@
 	  attrib.enable(gl, program, gl.FLOAT, 'a_position', false);
 	};
 
-	var camp = vec3.create();
+	var camp = vec4.create();
 	var objp = vec3.create();
+	var camt = mat4.create();
 
 	var projMat = mat4.create();
 	var cameraMat = mat4.create();
@@ -151,31 +122,49 @@
 	//Draw routine
 	var display = function(time){
 	  // Clear the canvas.
-	  gl.clearColor(0.2,0.0,0.05,1.0);
+	  gl.clearColor(0.2, 0.0, 0.05, 1.0);
 	  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	  //Update uniform values here if necessary
 
-	  cam.perspective(projMat, 1.2, canvas.width/canvas.height, 1, 1000);
+	  //Camera position
+	  vec4.assignFromArgs(camp, 0, 0, 15, 1);
 
-	  vec3.assignFromArgs(camp, 15*Math.cos(time/600) + chunk.CHUNK_WIDTH/2,
-	                            chunk.CHUNK_HEIGHT / 2,
-	                            15*Math.sin(time/600) + chunk.CHUNK_DEPTH/2);
+	  //Rotate camera around origin with time
+	  mat4.rotateY(camt, time / 600);
+	  vec4.matrixMultiply(camp, camp, camt);
 
+	  //Shift camera, so that the rotation is around the center of a chunk
+	  mat4.translation(camt, vec3.createFromArgs(chunk.CHUNK_WIDTH / 2,
+	                                             chunk.CHUNK_HEIGHT / 2,
+	                                             chunk.CHUNK_DEPTH / 2));
+	  vec4.matrixMultiply(camp, camp, camt);
+
+	  //The point where the camera will point
 	  vec3.assignFromArgs(objp, chunk.CHUNK_WIDTH / 2,
 	                            chunk.CHUNK_HEIGHT / 2,
 	                            chunk.CHUNK_DEPTH / 2);
 
+	  //Calculate the lookAt Matrix
 	  cam.lookAt(cameraMat, camp, objp);
 
+	  //turn the camera matrix into a view matrix
 	  mat4.inverse(viewMat, cameraMat);
+
+	  //Calculate the projection matrix, accounting for perspective
+	  cam.perspective(projMat, 1.2, canvas.width/canvas.height, 1, 1000);
+
+	  //Apply the view to the projection matrix
 	  mat4.multiply(viewProjMat, projMat, viewMat);
 
+	  //Assign the uniform for the view projection matrix
 	  var matrixLocation = gl.getUniformLocation(program, "u_matrix");
 	  gl.uniformMatrix4fv(matrixLocation, 0, viewProjMat);
 
+	  //Draw
 	  gl.drawArrays(gl.TRIANGLES, 0, blocks.length / 3);
 
+	  //Loop at 60fps max
 	  window.requestAnimationFrame(display);
 	};
 
@@ -366,11 +355,17 @@
 	};
 
 	mat4.translation = function(out, v){
+	  out[0]  = 1; out[1]  = 0; out[2]  = 0; out[3]  = v[0];
+	  out[4]  = 0; out[5]  = 1; out[6]  = 0; out[7]  = v[1];
+	  out[8]  = 0; out[9]  = 0; out[10] = 1; out[11] = v[2];
+	  out[12] = 0; out[13] = 0; out[14] = 0; out[15] = 1;
+	};
+	/*mat4.translation = function(out, v){
 	  out[0]  = 1;    out[1]  = 0;    out[2]  = 0;    out[3]  = 0;
 	  out[4]  = 0;    out[5]  = 1;    out[6]  = 0;    out[7]  = 0;
 	  out[8]  = 0;    out[9]  = 0;    out[10] = 1;    out[11] = 0;
 	  out[12] = v[0]; out[13] = v[1]; out[14] = v[2]; out[15] = 1;
-	};
+	};*/
 
 	mat4.rotateX = function(out, ang){
 	  var c = Math.cos(ang), s = Math.sin(ang);
@@ -488,6 +483,12 @@
 	  return Math.sqrt(x*x + y*y);
 	};
 
+	vec2.matrixMultiply = function(out, a, mat){
+	  var a0 = a[0], a1 = a[1];
+	  out[0] = a0*mat[0+0*4] + a1*mat[1+0*4];
+	  out[1] = a0*mat[0+1*4] + a1*mat[1+1*4];
+	};
+
 	vec2.I = vec2.createFromArgs(1, 0);
 	vec2.J = vec2.createFromArgs(0, 1);
 
@@ -553,9 +554,12 @@
 	  return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 	};
 	vec3.cross = function(out, a, b){
-	  out[0] = a[1] * b[2] - b[1] * a[2];
-	  out[1] = a[2] * b[0] - b[2] * a[0];
-	  out[2] = a[0] * b[1] - b[0] * a[1];
+	  var a0 = a[0], a1 = a[1], a2 = a[2],
+	      b0 = b[0], b1 = b[1], b2 = b[2];
+
+	  out[0] = a1 * b2 - b1 * a2;
+	  out[1] = a2 * b0 - b2 * a0;
+	  out[2] = a0 * b1 - b0 * a1;
 	};
 	vec3.magnitude2 = function(a){
 	  var x = a[0], y = a[1], z = a[2];
@@ -580,6 +584,14 @@
 
 	  return Math.sqrt(x*x + y*y + z*z);
 	};
+
+	vec3.matrixMultiply = function(out, a, mat){
+	  var a0 = a[0], a1 = a[1], a2 = a[2];
+	  out[0] = a0*mat[0+0*4] + a1*mat[1+0*4] + a2*mat[2+0*4];
+	  out[1] = a0*mat[0+1*4] + a1*mat[1+1*4] + a2*mat[2+1*4];
+	  out[2] = a0*mat[0+2*4] + a1*mat[1+2*4] + a2*mat[2+2*4];
+	};
+
 
 	vec3.I = vec3.createFromArgs(1, 0, 0);
 	vec3.J = vec3.createFromArgs(0, 1, 0);
@@ -674,6 +686,14 @@
 	      w = a[3] - b[3];
 
 	  return Math.sqrt(x*x + y*y + z*z + w*w);
+	};
+
+	vec4.matrixMultiply = function(out, a, mat){
+	  var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3];
+	  out[0] = a0*mat[0+0*4] + a1*mat[1+0*4] + a2*mat[2+0*4] + a3*mat[3+0*4];
+	  out[1] = a0*mat[0+1*4] + a1*mat[1+1*4] + a2*mat[2+1*4] + a3*mat[3+1*4];
+	  out[2] = a0*mat[0+2*4] + a1*mat[1+2*4] + a2*mat[2+2*4] + a3*mat[3+2*4];
+	  out[3] = a0*mat[0+3*4] + a1*mat[1+3*4] + a2*mat[2+3*4] + a3*mat[3+3*4];
 	};
 
 	vec4.I = vec4.createFromArgs(1, 0, 0, 0);
@@ -814,8 +834,13 @@
 	chunk.CHUNK_HEIGHT = CHUNK_HEIGHT;
 	chunk.CHUNK_DEPTH = CHUNK_DEPTH;
 
+
+
+
+
+
 	chunk.create = function(){
-	  return new Float32Array(CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH);
+	  return new Uint8Array(CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH);
 	};
 
 	chunk.indexByArgs = function(c, x, y, z){
@@ -935,6 +960,7 @@
 
 	  return s;
 	};
+
 	shader.program = function(gl){
 	  //Link the shaders into a program
 	  var program = gl.createProgram();
@@ -951,7 +977,7 @@
 	  }
 
 	  return program;
-	}
+	};
 
 
 	module.exports = shader;
