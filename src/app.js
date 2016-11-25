@@ -19,24 +19,54 @@ var gl, program, canvas;
 var colors, blocks;
 
 var voxels = chunk.create();
+//var chunks = [];
 
 
 //Initialize shaders and draw surface
 var setup = function(){
-  //Generate voxel values
-  for (var i = 0; i < voxels.length; i++){
-    voxels[i] = (0.2 + Math.random()) | 0;
+  var cblocks;
+  var ccolors;
+  var ablocks = [];
+  var acolors = [];
+  var len = 0;
+  for (var x = 0; x < 5; x++){
+    //Generate voxel values
+    for (var i = 0; i < voxels.length; i++){
+      voxels[i] = (0.2 + Math.random()) | 0;
+    }
+
+    //TODO: find a better voxel polygonization method (0fps.net)
+    cblocks = chunk.cullMeshWithOffset(voxels, vec3.createFromArgs(x*chunk.CHUNK_WIDTH, 0, 0));
+    ccolors = new Uint8Array(cblocks.length);
+
+    for (i = 0; i < ccolors.length; i+=3){
+        ccolors[i+0] = Math.random()*255;//sin(blocks[i]*0.2) * 127;
+        ccolors[i+1] = Math.random()*255;//sin(blocks[i+1]*0.2) * 127;
+        ccolors[i+2] = Math.random()*255;//sin(blocks[i+2]*0.2) * 127;
+    }
+
+    len += cblocks.length;
+
+    ablocks.push(cblocks);
+    acolors.push(ccolors);
   }
 
-  //TODO: find a better voxel polygonization method (0fps.net)
-  blocks = chunk.cullMesh(voxels);
-  colors = new Uint8Array(blocks.length);
-
-  for (i = 0; i < colors.length; i+=3){
-      colors[i+0] = Math.sin(blocks[i]*0.2) * 127;
-      colors[i+1] = Math.sin(blocks[i+1]*0.2) * 127;
-      colors[i+2] = Math.sin(blocks[i+2]*0.2) * 127;
+  blocks = new Float32Array(len);
+  colors = new Uint8Array(len);
+  console.log(len);
+  var idx = 0;
+  for (i = 0; i < ablocks.length; i++){
+    blocks.set(ablocks[i], idx);
+    colors.set(acolors[i], idx);
+    idx += ablocks[i].length;
+    console.log(idx);
   }
+
+  /*blocks = new Float32Array();
+  colors = [];
+  for (i = 0; i < chunks.length; i++){
+    blocks.concat
+  }*/
 
   //Set the viewport
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -76,26 +106,26 @@ var viewProjMat = mat4.create();
 //Draw routine
 var display = function(time){
   // Clear the canvas.
-  gl.clearColor(0.2, 0.0, 0.05, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   //Update uniform values here if necessary
 
   //Camera position
-  vec4.assignFromArgs(camp, 0, 0, 15, 1);
+  vec4.assignFromArgs(camp, 0, 0, 35, 1);
 
   //Rotate camera around origin with time
   mat4.rotateY(camt, time / 600);
   vec4.matrixMultiply(camp, camp, camt);
 
   //Shift camera, so that the rotation is around the center of a chunk
-  mat4.translation(camt, vec3.createFromArgs(chunk.CHUNK_WIDTH / 2,
+  mat4.translation(camt, vec3.createFromArgs(20 + chunk.CHUNK_WIDTH / 2,
                                              chunk.CHUNK_HEIGHT / 2,
                                              chunk.CHUNK_DEPTH / 2));
   vec4.matrixMultiply(camp, camp, camt);
 
   //The point where the camera will point
-  vec3.assignFromArgs(objp, chunk.CHUNK_WIDTH / 2,
+  vec3.assignFromArgs(objp, 20 + chunk.CHUNK_WIDTH / 2,
                             chunk.CHUNK_HEIGHT / 2,
                             chunk.CHUNK_DEPTH / 2);
 
@@ -127,8 +157,16 @@ var display = function(time){
 window.addEventListener('load', function(){
   canvas = document.createElement('canvas');
 
-  canvas.width = 800;
-  canvas.height = 640;
+  var width = window.innerWidth
+           || document.documentElement.clientWidth
+           || document.body.clientWidth;
+
+  var height = window.innerHeight
+            || document.documentElement.clientHeight
+            || document.body.clientHeight;
+
+  canvas.width = width;
+  canvas.height = height;
 
   document.body.appendChild(canvas);
 

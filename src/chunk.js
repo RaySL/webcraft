@@ -11,10 +11,6 @@ chunk.CHUNK_HEIGHT = CHUNK_HEIGHT;
 chunk.CHUNK_DEPTH = CHUNK_DEPTH;
 
 
-
-
-
-
 chunk.create = function(){
   return new Uint8Array(CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH);
 };
@@ -111,7 +107,85 @@ chunk.indexByVec = function(c, v){
     return verts.slice(0, vc);
   };
 
+  chunk.cullMeshWithOffset = function(c, o){
+    var vc = 0;
+    verts.fill(0);
+
+    var ox = o[0];
+    var oy = o[1];
+    var oz = o[2];
+
+    for (var x = 0; x < CHUNK_WIDTH; x++)
+    for (var y = 0; y < CHUNK_HEIGHT; y++)
+    for (var z = 0; z < CHUNK_DEPTH; z++) {
+      if (c[x + y*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT]){
+        if (x == 0 || c[x-1 + y*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+          verts.set([ x+ox,   y+oy,   z+oz,
+                      x+ox,   y+oy,   z+oz+1,
+                      x+ox,   y+oy+1, z+oz,
+                      x+ox,   y+oy+1, z+oz+1,
+                      x+ox,   y+oy+1, z+oz,
+                      x+ox,   y+oy,   z+oz+1], vc);
+          vc += 18;
+        }
+
+        if (y == 0 || c[x + (y-1)*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+          verts.set([ x+ox,   y+oy,   z+oz,
+                      x+ox+1, y+oy,   z+oz,
+                      x+ox,   y+oy,   z+oz+1,
+                      x+ox+1, y+oy,   z+oz+1,
+                      x+ox,   y+oy,   z+oz+1,
+                      x+ox+1, y+oy,   z+oz], vc);
+          vc += 18;
+        }
+
+        if (z == 0 || c[x + y*CHUNK_WIDTH + (z-1)*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+          verts.set([ x+ox,   y+oy,   z+oz,
+                      x+ox,   y+oy+1, z+oz,
+                      x+ox+1, y+oy,   z+oz,
+                      x+ox+1, y+oy+1, z+oz,
+                      x+ox+1, y+oy,   z+oz,
+                      x+ox,   y+oy+1, z+oz], vc);
+          vc += 18;
+        }
+
+        if (x == CHUNK_WIDTH-1 || c[x+1 + y*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+          verts.set([ x+ox+1, y+oy,   z+oz,
+                      x+ox+1, y+oy+1, z+oz,
+                      x+ox+1, y+oy,   z+oz+1,
+                      x+ox+1, y+oy+1, z+oz+1,
+                      x+ox+1, y+oy,   z+oz+1,
+                      x+ox+1, y+oy+1, z+oz], vc);
+          vc += 18;
+        }
+
+        if (y == CHUNK_HEIGHT-1 || c[x + (y+1)*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+          verts.set([ x+ox,   y+oy+1, z+oz,
+                      x+ox,   y+oy+1, z+oz+1,
+                      x+ox+1, y+oy+1, z+oz,
+                      x+ox+1, y+oy+1, z+oz+1,
+                      x+ox+1, y+oy+1, z+oz,
+                      x+ox,   y+oy+1, z+oz+1], vc);
+          vc += 18;
+        }
+
+        if (z == CHUNK_DEPTH-1 || c[x + y*CHUNK_WIDTH + (z+1)*CHUNK_WIDTH*CHUNK_HEIGHT] == 0){
+          verts.set([ x+ox,   y+oy,   z+oz+1,
+                      x+ox+1, y+oy,   z+oz+1,
+                      x+ox,   y+oy+1, z+oz+1,
+                      x+ox+1, y+oy+1, z+oz+1,
+                      x+ox,   y+oy+1, z+oz+1,
+                      x+ox+1, y+oy,   z+oz+1], vc);
+          vc += 18;
+        }
+      }
+    }
+
+    return verts.slice(0, vc);
+  };
+
 })();
+
 
 
 module.exports = chunk;
