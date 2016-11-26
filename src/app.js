@@ -1,7 +1,8 @@
 var fragSrc = require('./shaders/frag.glsl');
 var vertSrc = require('./shaders/vert.glsl');
 
-var chunk = require('./chunk.js');
+//var chunk = require('./chunk.js');
+var chunkset = require('./chunkset.js');
 
 var attrib = require('./attrib.js');
 var shader = require('./shader.js');
@@ -18,12 +19,14 @@ var vec4 = vec.vec4;
 var gl, program, canvas;
 var colors, blocks;
 
-var voxels = chunk.create();
-//var chunks = [];
+var cs = chunkset.create();
+
+//var voxels = chunk.create();
 
 
 //Initialize shaders and draw surface
 var setup = function(){
+  /*
   var cblocks;
   var ccolors;
   var ablocks = [];
@@ -67,6 +70,35 @@ var setup = function(){
   for (i = 0; i < chunks.length; i++){
     blocks.concat
   }*/
+
+  for (var i = 0; i < 1600; i++){
+    var x = Math.random() - 0.5;
+    var y = Math.random() - 0.5;
+    var z = Math.random() - 0.5;
+
+    if (x*x + y*y + z*z < 0.25){
+      x = 32 + x * 32;
+      y = 32 + y * 32;
+      z = 32 + z * 32;
+
+      x |= 0;
+      y |= 0;
+      z |= 0;
+      //console.log(x, y, z);
+
+      chunkset.setFromArgs(cs, x, y, z, 1);
+    }
+  }
+
+  blocks = chunkset.cullMeshRangeArgs(cs, 0, 0, 0, 2, 2, 2);
+  colors = new Uint8Array(blocks.length);
+  console.log(blocks);
+
+  for (i = 0; i < colors.length; i+=3){
+      colors[i+0] = Math.random()*255;//sin(blocks[i]*0.2) * 127;
+      colors[i+1] = 128;//Math.random()*255;//sin(blocks[i+1]*0.2) * 127;
+      colors[i+2] = 128;//Math.random()*255;//sin(blocks[i+2]*0.2) * 127;
+  }
 
   //Set the viewport
   gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -112,22 +144,22 @@ var display = function(time){
   //Update uniform values here if necessary
 
   //Camera position
-  vec4.assignFromArgs(camp, 0, 0, 35, 1);
+  vec4.assignFromArgs(camp, 0, 0, 40, 1);
 
   //Rotate camera around origin with time
-  mat4.rotateY(camt, time / 600);
+  mat4.rotateY(camt, time / 1000);
   vec4.matrixMultiply(camp, camp, camt);
 
   //Shift camera, so that the rotation is around the center of a chunk
-  mat4.translation(camt, vec3.createFromArgs(20 + chunk.CHUNK_WIDTH / 2,
-                                             chunk.CHUNK_HEIGHT / 2,
-                                             chunk.CHUNK_DEPTH / 2));
+  mat4.translation(camt, vec3.createFromArgs(32,//chunk.CHUNK_WIDTH / 2,
+                                             32,//chunk.CHUNK_HEIGHT / 2,
+                                             32));//chunk.CHUNK_DEPTH / 2));
   vec4.matrixMultiply(camp, camp, camt);
 
   //The point where the camera will point
-  vec3.assignFromArgs(objp, 20 + chunk.CHUNK_WIDTH / 2,
+  vec3.assignFromArgs(objp, 32, 32, 32);/*chunk.CHUNK_WIDTH / 2,
                             chunk.CHUNK_HEIGHT / 2,
-                            chunk.CHUNK_DEPTH / 2);
+                            chunk.CHUNK_DEPTH / 2);*/
 
   //Calculate the lookAt Matrix
   cam.lookAt(cameraMat, camp, objp);

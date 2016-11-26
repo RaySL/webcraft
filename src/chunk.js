@@ -2,23 +2,43 @@
 
 var chunk = {};
 
-var CHUNK_WIDTH = 10;
-var CHUNK_HEIGHT = 10;
-var CHUNK_DEPTH = 10;
+var CHUNK_SHIFT_X = 5;
+var CHUNK_SHIFT_Y = 5;
+var CHUNK_SHIFT_Z = 5;
+
+var CHUNK_WIDTH  = 1 << CHUNK_SHIFT_X;
+var CHUNK_HEIGHT = 1 << CHUNK_SHIFT_Y;
+var CHUNK_DEPTH  = 1 << CHUNK_SHIFT_Z;
+
+var CHUNK_MASK_X = CHUNK_WIDTH  - 1;
+var CHUNK_MASK_Y = CHUNK_HEIGHT - 1;
+var CHUNK_MASK_Z = CHUNK_DEPTH  - 1;
+
+var CHUNK_SIZE = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH;
+
+chunk.CHUNK_SHIFT_X = CHUNK_SHIFT_X;
+chunk.CHUNK_SHIFT_Y = CHUNK_SHIFT_Y;
+chunk.CHUNK_SHIFT_Z = CHUNK_SHIFT_Z;
 
 chunk.CHUNK_WIDTH = CHUNK_WIDTH;
 chunk.CHUNK_HEIGHT = CHUNK_HEIGHT;
 chunk.CHUNK_DEPTH = CHUNK_DEPTH;
 
+chunk.CHUNK_MASK_X = CHUNK_MASK_X;
+chunk.CHUNK_MASK_Y = CHUNK_MASK_Y;
+chunk.CHUNK_MASK_Z = CHUNK_MASK_Z;
+
+chunk.CHUNK_SIZE = CHUNK_SIZE;
+
 
 chunk.create = function(){
-  return new Uint8Array(CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH);
+  return new Uint8Array(CHUNK_SIZE);
 };
 
-chunk.indexByArgs = function(c, x, y, z){
+chunk.getFromArgs = function(c, x, y, z){
   return c[x + CHUNK_WIDTH * (y + CHUNK_HEIGHT * z)];
 };
-chunk.indexByVec = function(c, v){
+chunk.getFromVec = function(c, v){
   return c[v[0] + CHUNK_WIDTH * (v[1] + CHUNK_HEIGHT * v[2])];
 };
 
@@ -28,9 +48,10 @@ chunk.indexByVec = function(c, v){
 
 (function(){
 
-  var maxfaces = CHUNK_WIDTH * CHUNK_HEIGHT * (CHUNK_DEPTH+1) +
+  /*var maxfaces = CHUNK_WIDTH * CHUNK_HEIGHT * (CHUNK_DEPTH+1) +
                   CHUNK_WIDTH * (CHUNK_HEIGHT+1) * CHUNK_DEPTH +
-                  (CHUNK_WIDTH+1) * CHUNK_HEIGHT * CHUNK_DEPTH;
+                  (CHUNK_WIDTH+1) * CHUNK_HEIGHT * CHUNK_DEPTH;*/
+  var maxfaces = CHUNK_SIZE * 3 + CHUNK_WIDTH + CHUNK_HEIGHT + CHUNK_DEPTH;
 
   var verts = new Float32Array(maxfaces * 6 * 3);
 
