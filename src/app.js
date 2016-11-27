@@ -21,56 +21,9 @@ var colors, blocks;
 
 var cs = chunkset.create();
 
-//var voxels = chunk.create();
-
 
 //Initialize shaders and draw surface
 var setup = function(){
-  /*
-  var cblocks;
-  var ccolors;
-  var ablocks = [];
-  var acolors = [];
-  var len = 0;
-  for (var x = 0; x < 5; x++){
-    //Generate voxel values
-    for (var i = 0; i < voxels.length; i++){
-      voxels[i] = (0.2 + Math.random()) | 0;
-    }
-
-    //TODO: find a better voxel polygonization method (0fps.net)
-    cblocks = chunk.cullMeshWithOffset(voxels, vec3.createFromArgs(x*chunk.CHUNK_WIDTH, 0, 0));
-    ccolors = new Uint8Array(cblocks.length);
-
-    for (i = 0; i < ccolors.length; i+=3){
-        ccolors[i+0] = Math.random()*255;//sin(blocks[i]*0.2) * 127;
-        ccolors[i+1] = Math.random()*255;//sin(blocks[i+1]*0.2) * 127;
-        ccolors[i+2] = Math.random()*255;//sin(blocks[i+2]*0.2) * 127;
-    }
-
-    len += cblocks.length;
-
-    ablocks.push(cblocks);
-    acolors.push(ccolors);
-  }
-
-  blocks = new Float32Array(len);
-  colors = new Uint8Array(len);
-  console.log(len);
-  var idx = 0;
-  for (i = 0; i < ablocks.length; i++){
-    blocks.set(ablocks[i], idx);
-    colors.set(acolors[i], idx);
-    idx += ablocks[i].length;
-    console.log(idx);
-  }
-
-  /*blocks = new Float32Array();
-  colors = [];
-  for (i = 0; i < chunks.length; i++){
-    blocks.concat
-  }*/
-
   for (var i = 0; i < 1600; i++){
     var x = Math.random() - 0.5;
     var y = Math.random() - 0.5;
@@ -84,7 +37,6 @@ var setup = function(){
       x |= 0;
       y |= 0;
       z |= 0;
-      //console.log(x, y, z);
 
       chunkset.setFromArgs(cs, x, y, z, 1);
     }
@@ -95,9 +47,9 @@ var setup = function(){
   console.log(blocks);
 
   for (i = 0; i < colors.length; i+=3){
-      colors[i+0] = Math.random()*255;//sin(blocks[i]*0.2) * 127;
-      colors[i+1] = 128;//Math.random()*255;//sin(blocks[i+1]*0.2) * 127;
-      colors[i+2] = 128;//Math.random()*255;//sin(blocks[i+2]*0.2) * 127;
+      colors[i+0] = Math.random()*255;
+      colors[i+1] = Math.random()*255;
+      colors[i+2] = Math.random()*255;
   }
 
   //Set the viewport
