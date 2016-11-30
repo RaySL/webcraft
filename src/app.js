@@ -24,7 +24,21 @@ var cs = chunkset.create();
 
 //Initialize shaders and draw surface
 var setup = function(){
-  for (var i = 0; i < 1600; i++){
+  for (var x = 0; x < 32; x++){
+    for (var y = 0; y < 32; y++){
+      for (var z = 0; z < 32; z++){
+        var dx = x - 16;
+        var dy = y - 16;
+        var dz = z - 16;
+
+        if (dx*dx + dy*dy + dz*dz > 300){
+          chunkset.setFromArgs(cs, x, y, z, 1);
+        }
+      }
+    }
+  }
+
+  /*for (var i = 0; i < 1600; i++){
     var x = Math.random() - 0.5;
     var y = Math.random() - 0.5;
     var z = Math.random() - 0.5;
@@ -40,13 +54,13 @@ var setup = function(){
 
       chunkset.setFromArgs(cs, x, y, z, 1);
     }
-  }
+  }*/
 
   blocks = chunkset.cullMeshRangeArgs(cs, 0, 0, 0, 2, 2, 2);
   colors = new Uint8Array(blocks.length);
   console.log(blocks);
 
-  for (i = 0; i < colors.length; i+=3){
+  for (var i = 0; i < colors.length; i+=3){
       colors[i+0] = Math.random()*255;
       colors[i+1] = Math.random()*255;
       colors[i+2] = Math.random()*255;
@@ -96,20 +110,20 @@ var display = function(time){
   //Update uniform values here if necessary
 
   //Camera position
-  vec4.assignFromArgs(camp, 0, 0, 40, 1);
+  vec4.assignFromArgs(camp, 0, 0, 5, 1);
 
   //Rotate camera around origin with time
   mat4.rotateY(camt, time / 1000);
   vec4.matrixMultiply(camp, camp, camt);
 
   //Shift camera, so that the rotation is around the center of a chunk
-  mat4.translation(camt, vec3.createFromArgs(32,//chunk.CHUNK_WIDTH / 2,
-                                             32,//chunk.CHUNK_HEIGHT / 2,
-                                             32));//chunk.CHUNK_DEPTH / 2));
+  mat4.translation(camt, vec3.createFromArgs(16,//chunk.CHUNK_WIDTH / 2,
+                                             16,//chunk.CHUNK_HEIGHT / 2,
+                                             16));//chunk.CHUNK_DEPTH / 2));
   vec4.matrixMultiply(camp, camp, camt);
 
   //The point where the camera will point
-  vec3.assignFromArgs(objp, 32, 32, 32);/*chunk.CHUNK_WIDTH / 2,
+  vec3.assignFromArgs(objp, 0, 16, 16);/*chunk.CHUNK_WIDTH / 2,
                             chunk.CHUNK_HEIGHT / 2,
                             chunk.CHUNK_DEPTH / 2);*/
 
@@ -158,7 +172,7 @@ window.addEventListener('load', function(){
     alpha: false,
     depth: true,
     stencil: false,
-    antialias: false,
+    antialias: true,
     premultipliedAlpha: false,
     preserveDrawingBuffer: true,
     failIfMajorPerformanceCaveat: true
